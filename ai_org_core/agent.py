@@ -19,7 +19,7 @@ class Delegation(BaseModel):
 class UseTool(BaseModel):
     tool_name: str = Field(description="The name of the tool to use, e.g., 'browser' or 'code_executor'.")
     method: str = Field(description="The method of the tool to call, e.g., 'browse_and_scrape' or 'write_code'.")
-    arguments: Dict[str, str] = Field(description="The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print("Hello")'}.")
+    arguments: Dict[str, str] = Field(description=("""The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print("Hello")'}."""))
 
 class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
