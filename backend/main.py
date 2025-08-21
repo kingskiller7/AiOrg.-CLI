@@ -56,45 +56,45 @@ def define_organization_structure() -> dict:
             "subordinates": []
         },
         "Operations": {
-            "persona": Persona(role="Operations", responsibilities=["Production", "Logistics", "Supply chain"]),
+            "persona": Persona(role="Operations", responsibilities=["Overseeing daily business operations", "Improving operational efficiency and processes", "Managing production, logistics, and supply chain"]),
             "subordinates": []
         },
         "Finance & Accounts": {
-            "persona": Persona(role="Finance & Accounts", responsibilities=["Budgeting", "Reporting", "Investments"]),
+            "persona": Persona(role="Finance & Accounts", responsibilities=["Managing daily financial operations", "Preparing financial statements and reports", "Overseeing budgeting, forecasting, and cash flow"]),
             "subordinates": []
         },
         "Technology / Engineering": {
-            "persona": Persona(role="Technology / Engineering", responsibilities=["Software development", "Hardware", "Innovation"]),
+            "persona": Persona(role="Technology / Engineering", responsibilities=["Managing the software development lifecycle", "Ensuring the quality and stability of the technical architecture", "Leading and mentoring the engineering team"]),
             "subordinates": []
         },
         "HR & Administration": {
-            "persona": Persona(role="HR & Administration", responsibilities=["Recruitment", "Training", "Agent relations"]),
+            "persona": Persona(role="HR & Administration", responsibilities=["Managing recruitment, onboarding, and employee relations", "Developing and enforcing HR policies and compliance", "Overseeing office administration and record-keeping"]),
             "subordinates": []
         },
         "Marketing & Sales": {
-            "persona": Persona(role="Marketing & Sales", responsibilities=["Market research", "Campaigns", "Customer relations"]),
+            "persona": Persona(role="Marketing & Sales", responsibilities=["Developing and implementing sales and marketing strategies", "Overseeing marketing campaigns and sales activities", "Analyzing market data and trends"]),
             "subordinates": []
         },
         "Customer Service": {
-            "persona": Persona(role="Customer Service", responsibilities=["After-sales", "Client success"]),
+            "persona": Persona(role="Customer Service", responsibilities=["Overseeing the customer service team", "Developing and implementing customer service policies", "Handling complex customer complaints and escalations"]),
             "subordinates": []
         },
         "R&D": {
-            "persona": Persona(role="R&D", responsibilities=["Innovation", "Product improvement"]),
+            "persona": Persona(role="R&D", responsibilities=["Developing and executing the R&D strategy", "Leading new product development and innovation", "Managing the R&D team and budget"]),
             "subordinates": []
         },
         "Procurement": {
-            "persona": Persona(role="Procurement", responsibilities=["Vendor management", "Purchasing"]),
+            "persona": Persona(role="Procurement", responsibilities=["Developing and implementing procurement strategies", "Managing supplier and vendor relationships", "Negotiating contracts and optimizing costs"]),
             "subordinates": []
         },
 
         # 4. CIO's Department
         "Data Analyst Team": {
-            "persona": Persona(role="Data Analyst Team", responsibilities=["Analyze datasets to extract insights", "Generate business intelligence reports", "Identify trends and patterns in data"], abilities=["code_executor", "file_system"]),
+            "persona": Persona(role="Data Analyst Team", responsibilities=["Collecting, cleaning, and analyzing data from various sources", "Identifying trends, patterns, and correlations in datasets", "Creating reports and visualizations to communicate findings"], abilities=["code_executor", "file_system"]),
             "subordinates": []
         },
         "Systems Administration Team": {
-            "persona": Persona(role="Systems Administration Team", responsibilities=["Manage and organize file storage", "Ensure data accessibility and system uptime", "Perform data archiving"], abilities=["file_system"]),
+            "persona": Persona(role="Systems Administration Team", responsibilities=["Installing, configuring, and maintaining server and network infrastructure", "Managing user accounts and system permissions", "Monitoring system performance and security"], abilities=["file_system"]),
             "subordinates": []
         }
     }
