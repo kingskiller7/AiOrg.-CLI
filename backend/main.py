@@ -46,11 +46,15 @@ def define_organization_structure() -> dict:
             "subordinates": ["Marketing & Sales"]
         },
         "CSO": {
-            "persona": Persona(role="CSO", responsibilities=["Strategy alignment", "Sales oversight"]),
-            "subordinates": []
+            "persona": Persona(role="Chief Security Officer", responsibilities=["Oversee all security aspects", "Vulnerability management"]),
+            "subordinates": ["Security Team"]
         },
 
         # 3. Middle Management (Functional Heads)
+        "Security Team": {
+            "persona": Persona(role="Security Team", responsibilities=["Cybersecurity analysis", "Ethical hacking", "Vulnerability assessment"], abilities=["browser", "code_executor", "file_system"]),
+            "subordinates": []
+        },
         "Operations": {
             "persona": Persona(role="Operations", responsibilities=["Production", "Logistics", "Supply chain"]),
             "subordinates": []
