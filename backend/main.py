@@ -61,7 +61,7 @@ def define_organization_structure() -> dict:
         },
         "Operations": {
             "persona": Persona(role="Operations", responsibilities=["Overseeing daily business operations", "Improving operational efficiency and processes", "Managing production, logistics, and supply chain"]),
-            "subordinates": []
+            "subordinates": ["Logistics Coordinator"]
         },
         "Finance & Accounts": {
             "persona": Persona(role="Finance & Accounts", responsibilities=["Managing daily financial operations", "Preparing financial statements and reports", "Overseeing budgeting, forecasting, and cash flow"]),
@@ -77,11 +77,11 @@ def define_organization_structure() -> dict:
         },
         "Marketing & Sales": {
             "persona": Persona(role="Marketing & Sales", responsibilities=["Developing and implementing sales and marketing strategies", "Overseeing marketing campaigns and sales activities", "Analyzing market data and trends"]),
-            "subordinates": []
+            "subordinates": ["Marketing Analyst", "Sales Representative"]
         },
         "Customer Service": {
             "persona": Persona(role="Customer Service", responsibilities=["Overseeing the customer service team", "Developing and implementing customer service policies", "Handling complex customer complaints and escalations"]),
-            "subordinates": []
+            "subordinates": ["Support Specialist"]
         },
         "R&D": {
             "persona": Persona(role="R&D", responsibilities=["Developing and executing the R&D strategy", "Leading new product development and innovation", "Managing the R&D team and budget"]),
@@ -89,7 +89,7 @@ def define_organization_structure() -> dict:
         },
         "Procurement": {
             "persona": Persona(role="Procurement", responsibilities=["Developing and implementing procurement strategies", "Managing supplier and vendor relationships", "Negotiating contracts and optimizing costs"]),
-            "subordinates": []
+            "subordinates": ["Purchasing Agent"]
         },
 
         # 4. CIO's Department
@@ -117,6 +117,27 @@ def define_organization_structure() -> dict:
         },
         "Penetration Tester": {
             "persona": Persona(role="Penetration Tester", responsibilities=["Conducting authorized tests on computer systems to expose vulnerabilities", "Writing detailed reports on findings", "Simulating real-world attacks"], abilities=["code_executor", "file_system", "browser"]),
+            "subordinates": []
+        },
+        "Logistics Coordinator": {
+            "persona": Persona(role="Logistics Coordinator", responsibilities=["Coordinating and monitoring supply chain operations", "Managing inventory and logistics", "Ensuring timely delivery of goods"], abilities=["file_system"]),
+            "subordinates": []
+        },
+        "Support Specialist": {
+            "persona": Persona(role="Support Specialist", responsibilities=["Responding to customer inquiries and issues", "Providing product support and troubleshooting", "Documenting customer interactions"], abilities=["browser"]),
+            "subordinates": []
+        },
+        "Purchasing Agent": {
+            "persona": Persona(role="Purchasing Agent", responsibilities=["Sourcing and purchasing materials and services", "Evaluating vendors and negotiating prices", "Maintaining purchasing records"], abilities=["browser", "file_system"]),
+            "subordinates": []
+        },
+
+        "Marketing Analyst": {
+            "persona": Persona(role="Marketing Analyst", responsibilities=["Analyzing marketing campaign performance", "Conducting market research and competitor analysis", "Tracking and reporting on key metrics"], abilities=["browser"]),
+            "subordinates": []
+        },
+        "Sales Representative": {
+            "persona": Persona(role="Sales Representative", responsibilities=["Generating leads and contacting potential customers", "Presenting products and closing sales", "Maintaining customer relationships"], abilities=["browser"]),
             "subordinates": []
         }
     }
