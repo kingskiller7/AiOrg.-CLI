@@ -47,12 +47,16 @@ def define_organization_structure() -> dict:
         },
         "CSO": {
             "persona": Persona(role="Chief Security Officer", responsibilities=["Developing and implementing the overall security strategy", "Managing cybersecurity and physical security", "Overseeing risk management and incident response"]),
-            "subordinates": ["Security Team"]
+            "subordinates": ["Security Operations Team", "Offensive Security Team"]
         },
 
         # 3. Middle Management (Functional Heads)
-        "Security Team": {
-            "persona": Persona(role="Security Team", responsibilities=["Cybersecurity analysis", "Ethical hacking", "Vulnerability assessment"], abilities=["browser", "code_executor", "file_system"]),
+        "Security Operations Team": {
+            "persona": Persona(role="Security Operations Team (Blue Team)", responsibilities=["Monitoring systems for threats and vulnerabilities", "Managing and responding to security incidents", "Maintaining security infrastructure"]),
+            "subordinates": []
+        },
+        "Offensive Security Team": {
+            "persona": Persona(role="Offensive Security Team (Red Team)", responsibilities=["Conducting penetration tests on systems and applications", "Performing ethical hacking to identify vulnerabilities", "Simulating attack scenarios to test defenses"], abilities=["browser", "code_executor", "file_system"]),
             "subordinates": []
         },
         "Operations": {
