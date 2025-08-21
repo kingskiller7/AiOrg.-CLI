@@ -7,7 +7,7 @@ import json
 from .persona import Persona
 from .knowledge import KnowledgeBase
 from .task import Task
-from .tools import browser_tool, code_executor_tool
+from .tools import browser_tool, code_executor_tool, file_system_tool
 
 load_dotenv()
 
@@ -36,7 +36,8 @@ class AIAgent:
         self.knowledge = KnowledgeBase(agent_role=persona.role)
         self.tools = {
             "browser": browser_tool,
-            "code_executor": code_executor_tool
+            "code_executor": code_executor_tool,
+            "file_system": file_system_tool
         }
         
         api_key = os.getenv("GEMINI_API_KEY")
@@ -79,6 +80,7 @@ class AIAgent:
         2. **use_tool**: If you have an ability (a tool) that can help, specify the tool name, the method to use, and a dictionary of arguments. 
         - To search the web, use the 'browser' tool with the 'browse_and_scrape' method. You must formulate a search engine URL yourself (e.g., {'url': 'https://www.google.com/search?q=your+search+query'}).
         - For the 'code_executor' tool, the methods are 'lint_code', 'write_code', and 'execute_code'.
+        - For the 'file_system' tool, the methods are 'list_directory', 'read_file', and 'write_file'.
         3. **execute**: If you can complete the task yourself without tools, provide the final answer.
 
         You must format your response as a JSON object matching the required schema.

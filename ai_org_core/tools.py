@@ -61,6 +61,48 @@ class CodeExecutionTool:
         except Exception as e:
             return f"Error during execution: {e}"
 
+class FileSystemTool:
+    """A tool for interacting with the local file system in a sandboxed workspace."""
+    def __init__(self, work_dir: str = "/home/kingubaish786/AiOrganisation/workspace"):
+        self.work_dir = work_dir
+        if not os.path.exists(self.work_dir):
+            os.makedirs(self.work_dir)
+
+    def list_directory(self, path: str = '.') -> str:
+        """Lists the contents of a specified subdirectory within the workspace."""
+        target_path = os.path.join(self.work_dir, path)
+        print(f"[FileTool] Listing contents of {target_path}...")
+        if not os.path.exists(target_path) or not os.path.isdir(target_path):
+            return f"Error: Directory '{path}' not found."
+        try:
+            return "\n".join(os.listdir(target_path))
+        except Exception as e:
+            return f"Error listing directory: {e}"
+
+    def read_file(self, filename: str) -> str:
+        """Reads the content of a file from the workspace."""
+        filepath = os.path.join(self.work_dir, filename)
+        print(f"[FileTool] Reading file {filepath}...")
+        if not os.path.exists(filepath):
+            return f"Error: File '{filename}' not found."
+        try:
+            with open(filepath, 'r') as f:
+                return f.read()
+        except Exception as e:
+            return f"Error reading file: {e}"
+
+    def write_file(self, filename: str, content: str) -> str:
+        """Writes content to a file in the workspace."""
+        filepath = os.path.join(self.work_dir, filename)
+        print(f"[FileTool] Writing to file {filepath}...")
+        try:
+            with open(filepath, 'w') as f:
+                f.write(content)
+            return f"Successfully wrote to {filename}."
+        except Exception as e:
+            return f"Error writing file: {e}"
+
 # Instantiate tools for the application to use
 browser_tool = BrowserTool()
 code_executor_tool = CodeExecutionTool()
+file_system_tool = FileSystemTool()
