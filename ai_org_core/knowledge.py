@@ -1,14 +1,44 @@
+import lancedb
+from sentence_transformers import SentenceTransformer
+import os
+
 class KnowledgeBase:
-    """Manages an agent's memory and learned information."""
-    def __init__(self, agent_role: str):
+    """Manages an agent's memory using a LanceDB vector store."""
+    def __init__(self, agent_role: str, db_path: str = "/home/kingubaish786/AiOrganisation/workspace/memory"):
         self.agent_role = agent_role
-        self.memory = [] # Simple list-based memory for now
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        if not os.path.exists(db_path):
+            os.makedirs(db_path)
+            
+        db = lancedb.connect(db_path)
+        table_name = self.agent_role.lower().replace(' ', '_')
+        
+        try:
+            self.table = db.open_table(table_name)
+        except FileNotFoundError:
+            # Table does not exist, create it
+            schema = {
+                "vector": self.model.encode("").tolist(),
+                "text": ""
+            }
+            self.table = db.create_table(table_name, schema=schema)
 
     def add(self, info: str):
-        print(f"[{self.agent_role}] Learning: {info}")
-        self.memory.append(info)
+        """Adds a new piece of information to the knowledge base."""
+        print(f"[{self.agent_role}] Learning: {info[:80]}...")
+        vector = self.model.encode(info).tolist()
+        self.table.add([{"vector": vector, "text": info}])
 
-    def query(self, question: str) -> str:
-        # In the future, this will use vector search.
-        # For now, it returns a summary.
-        return f"Knowledge base for {self.agent_role} contains {len(self.memory)} items."
+    def query(self, question: str, limit: int = 3) -> str:
+        """Queries the knowledge base for relevant information."""
+        print(f"[{self.agent_role}] Searching memory for: '{question[:80]}...'")
+        query_vector = self.model.encode(question).tolist()
+        results = self.table.search(query_vector).limit(limit).to_df()
+        
+        if results.empty:
+            return "No relevant information found in memory."
+        
+        # Format results for the prompt
+        formatted_results = "\n".join([f"- {row['text']}" for index, row in results.iterrows()])
+        return formatted_results

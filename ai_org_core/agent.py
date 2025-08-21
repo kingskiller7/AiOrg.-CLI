@@ -59,12 +59,17 @@ class AIAgent:
         subordinate_roles = ", ".join(self.organization.get_subordinates(self.persona.role)) or "None"
         available_abilities = ", ".join(self.persona.abilities) or "None"
         
+        relevant_experience = self.knowledge.query(task.description)
+
         prompt = f"""
         You are an AI agent, **{self.persona.role}**, within a larger organization.
 
         **Your Persona:**
         - Responsibilities: {', '.join(self.persona.responsibilities)}
         - Your Abilities: **{available_abilities}**
+
+        **Relevant Past Experience (from your memory):**
+        {relevant_experience}
 
         **Organizational Context:**
         - The task was delegated to you by: **{delegator_role}**.

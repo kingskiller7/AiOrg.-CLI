@@ -5,3 +5,5 @@ langchain-google-genai
 pydantic
 playwright
 ruff
+lancedb
+sentence-transformers
