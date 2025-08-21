@@ -1,66 +1,69 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import os
-from crewai import Crew, Process, Task
-from core.agents import AiOrgAgents
-from langchain_google_genai import ChatGoogleGenerativeAI
-from dotenv import load_dotenv
 
-load_dotenv()
+# Import the new AiOrg framework components
+from ai_org_core.agent import AIAgent
+from ai_org_core.persona import Persona
+from ai_org_core.task import Task
+from ai_org_core.orchestrator import Organization
 
 # Initialize the FastAPI app
 app = FastAPI(
-    title="AI Organization API",
-    description="An API for orchestrating a crew of AI agents to accomplish tasks.",
-    version="0.1.0",
+    title="AiOrg Framework API",
+    description="An API for orchestrating a custom AI agent organization.",
+    version="1.0.0",
 )
 
-# Initialize the Gemini model
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    raise ValueError("GEMINI_API_KEY not found in .env file. Please add it.")
+def define_organization_structure() -> dict:
+    """Defines the agents and their personas that form the organization."""
+    ceo_persona = Persona(
+        role="CEO",
+        responsibilities=["Final decision-making", "Strategy execution"],
+        views=["Focus on long-term value", "Maintain high quality standards"]
+    )
+    ceo = AIAgent(ceo_persona)
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
-    verbose=True,
-    temperature=0.5,
-    google_api_key=api_key,
-)
+    coo_persona = Persona(
+        role="COO",
+        responsibilities=["Day-to-day operations", "Process efficiency"],
+        views=["Efficiency is key", "Standardize processes"]
+    )
+    coo = AIAgent(coo_persona)
 
-# Initialize agents
-agents = AiOrgAgents()
-ceo = agents.ceo_agent()
-coo = agents.coo_agent()
-cto = agents.cto_agent()
+    cto_persona = Persona(
+        role="CTO",
+        responsibilities=["Technology strategy", "Product development"],
+        views=["Embrace cutting-edge technology", "Build scalable systems"]
+    )
+    cto = AIAgent(cto_persona)
+
+    structure = {
+        "CEO": ceo,
+        "COO": coo,
+        "CTO": cto,
+    }
+    return structure
 
 class TaskRequest(BaseModel):
     task: str
 
 @app.get("/")
 def read_root():
-    return {"message": "AI Organization API is running."}
+    return {"message": "AiOrg API is running."}
 
 @app.post("/api/execute-task")
 def execute_task(request: TaskRequest):
     try:
-        # Define the task
+        structure = define_organization_structure()
+        organization = Organization(structure)
+        
         task = Task(
             description=request.task,
-            expected_output="A comprehensive report detailing the findings, analysis, and final conclusion.",
-            agent=coo  # Start with the COO
+            expected_output="A comprehensive result based on the task description.",
+            assigned_to="COO"
         )
 
-        # Form the crew
-        crew = Crew(
-            agents=[ceo, coo, cto],
-            tasks=[task],
-            process=Process.hierarchical,
-            manager_llm=llm,
-            verbose=True
-        )
-
-        # Kick off the crew's work
-        result = crew.kickoff()
+        result = organization.kickoff(task)
 
         return {"result": result}
     except Exception as e:
