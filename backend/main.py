@@ -34,8 +34,8 @@ def define_organization_structure() -> dict:
             "subordinates": ["Technology / Engineering", "R&D"]
         },
         "CIO": {
-            "persona": Persona(role="CIO", responsibilities=["Data and information management", "Digital systems"]),
-            "subordinates": []
+            "persona": Persona(role="CIO", responsibilities=["Oversee the company-wide data strategy", "Ensure data integrity and governance", "Facilitate insights from data"]),
+            "subordinates": ["Data Analyst Team", "Systems Administration Team"]
         },
         "CHRO": {
             "persona": Persona(role="CHRO", responsibilities=["Agent resources", "Culture", "Training"]),
@@ -85,6 +85,16 @@ def define_organization_structure() -> dict:
         },
         "Procurement": {
             "persona": Persona(role="Procurement", responsibilities=["Vendor management", "Purchasing"]),
+            "subordinates": []
+        },
+
+        # 4. CIO's Department
+        "Data Analyst Team": {
+            "persona": Persona(role="Data Analyst Team", responsibilities=["Analyze datasets to extract insights", "Generate business intelligence reports", "Identify trends and patterns in data"], abilities=["code_executor", "file_system"]),
+            "subordinates": []
+        },
+        "Systems Administration Team": {
+            "persona": Persona(role="Systems Administration Team", responsibilities=["Manage and organize file storage", "Ensure data accessibility and system uptime", "Perform data archiving"], abilities=["file_system"]),
             "subordinates": []
         }
     }
