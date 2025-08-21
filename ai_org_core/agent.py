@@ -25,6 +25,7 @@ class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
 
 class AgentAction(BaseModel):
+    plan: List[str] = Field(description="A step-by-step plan of what the agent intends to do.")
     action: str = Field(description="Either 'delegate', 'use_tool', or 'execute'.")
     details: Delegation | UseTool | FinalAnswer
 
@@ -74,16 +75,12 @@ class AIAgent:
         - Description: {task.description}
         - Expected Output: {task.expected_output}
 
-        **Your Decision:**
-        Based on the task, your role, and your abilities, you must decide on one of three actions:
-        1. **delegate**: If the task is better suited for a subordinate, delegate it.
-        2. **use_tool**: If you have an ability (a tool) that can help, specify the tool name, the method to use, and a dictionary of arguments. 
-        - To search the web, use the 'browser' tool with the 'browse_and_scrape' method. You must formulate a search engine URL yourself (e.g., {'url': 'https://www.google.com/search?q=your+search+query'}).
-        - For the 'code_executor' tool, the methods are 'lint_code', 'write_code', and 'execute_code'.
-        - For the 'file_system' tool, the methods are 'list_directory', 'read_file', and 'write_file'.
-        3. **execute**: If you can complete the task yourself without tools, provide the final answer.
+        **Your Decision Process:**
+        1. First, think step-by-step. Formulate a plan to address the task.
+        2. Based on the first step of your plan, decide on your immediate next action.
+        3. You have three possible actions: `delegate`, `use_tool`, or `execute`.
 
-        You must format your response as a JSON object matching the required schema.
+        You must format your response as a JSON object matching the required schema, including your plan and your chosen next action.
         """
         return prompt
 
@@ -97,6 +94,12 @@ class AIAgent:
 
         print(f"[{self.persona.role}] is thinking...")
         response = self.llm.invoke(prompt)
+
+        # Print the agent's plan
+        if response.plan:
+            print(f"[{self.persona.role}] has formulated a plan:")
+            for i, step in enumerate(response.plan, 1):
+                print(f"  Step {i}: {step}")
 
         if response.action == 'execute':
             self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
