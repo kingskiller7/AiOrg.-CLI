@@ -1,5 +1,5 @@
 fastapi
 uvicorn
-crewai
 python-dotenv
 langchain-google-genai
+pydantic

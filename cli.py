@@ -1,40 +1,35 @@
 import argparse
 
-# Import the new AiOrg framework components
-from ai_org_core.agent import AIAgent
 from ai_org_core.persona import Persona
 from ai_org_core.task import Task
 from ai_org_core.orchestrator import Organization
 
 def define_organization_structure() -> dict:
-    """Defines the agents and their personas that form the organization."""
+    """Defines the agents, personas, and hierarchy of the organization."""
     
-    ceo_persona = Persona(
-        role="CEO",
-        responsibilities=["Final decision-making", "Strategy execution"],
-        views=["Focus on long-term value", "Maintain high quality standards"]
-    )
-    ceo = AIAgent(ceo_persona)
-
-    coo_persona = Persona(
-        role="COO",
-        responsibilities=["Day-to-day operations", "Process efficiency"],
-        views=["Efficiency is key", "Standardize processes"]
-    )
-    coo = AIAgent(coo_persona)
-
-    cto_persona = Persona(
-        role="CTO",
-        responsibilities=["Technology strategy", "Product development"],
-        views=["Embrace cutting-edge technology", "Build scalable systems"]
-    )
-    cto = AIAgent(cto_persona)
-
-    # The organizational chart
+    # Note: In a real system, these personas would be loaded from a config file.
     structure = {
-        "CEO": ceo,
-        "COO": coo,
-        "CTO": cto,
+        "CEO": {
+            "persona": Persona(
+                role="CEO",
+                responsibilities=["Set overall strategy", "Make final decisions"],
+            ),
+            "subordinates": ["COO", "CTO"]
+        },
+        "COO": {
+            "persona": Persona(
+                role="COO",
+                responsibilities=["Manage day-to-day operations", "Ensure operational efficiency"],
+            ),
+            "subordinates": [] # The COO executes tasks directly in this simple setup
+        },
+        "CTO": {
+            "persona": Persona(
+                role="CTO",
+                responsibilities=["Oversee all technical aspects", "Manage technology development"],
+            ),
+            "subordinates": [] # The CTO executes tasks directly
+        }
     }
     return structure
 
@@ -46,11 +41,11 @@ def main(task_description: str):
     organization = Organization(structure)
 
     # 2. Define the Task
-    # For now, we'll assign all tasks to the COO to start the delegation chain.
+    # The initial task is always assigned to the CEO to start the delegation chain.
     task = Task(
         description=task_description,
         expected_output="A comprehensive result based on the task description.",
-        assigned_to="COO"
+        assigned_to="CEO"
     )
 
     # 3. Kick off the work

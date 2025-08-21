@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List
 
 @dataclass
 class Task:
-    """A structure to define a task and its requirements."""
+    """A structure to define a task, its requirements, and its history."""
     description: str
     expected_output: str
     assigned_to: str # Role of the agent it should be assigned to
+    history: List[str] = field(default_factory=list)
