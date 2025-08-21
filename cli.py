@@ -47,11 +47,11 @@ def define_organization_structure() -> dict:
         # 3. Middle Management (Functional Heads)
         "Security Operations Team": {
             "persona": Persona(role="Security Operations Team (Blue Team)", responsibilities=["Monitoring systems for threats and vulnerabilities", "Managing and responding to security incidents", "Maintaining security infrastructure"]),
-            "subordinates": []
+            "subordinates": ["Security Analyst"]
         },
         "Offensive Security Team": {
             "persona": Persona(role="Offensive Security Team (Red Team)", responsibilities=["Conducting penetration tests on systems and applications", "Performing ethical hacking to identify vulnerabilities", "Simulating attack scenarios to test defenses"], abilities=["browser", "code_executor", "file_system"]),
-            "subordinates": []
+            "subordinates": ["Penetration Tester"]
         },
         "Operations": {
             "persona": Persona(role="Operations", responsibilities=["Overseeing daily business operations", "Improving operational efficiency and processes", "Managing production, logistics, and supply chain"]),
@@ -103,6 +103,14 @@ def define_organization_structure() -> dict:
         },
         "Lead Researcher": {
             "persona": Persona(role="Lead Researcher", responsibilities=["Conducting in-depth technical research", "Analyzing emerging technologies", "Summarizing complex findings for leadership"], abilities=["browser"]),
+            "subordinates": []
+        },
+        "Security Analyst": {
+            "persona": Persona(role="Security Analyst", responsibilities=["Analyzing security logs and alerts", "Investigating potential security incidents", "Monitoring for suspicious activity"], abilities=["file_system", "browser"]),
+            "subordinates": []
+        },
+        "Penetration Tester": {
+            "persona": Persona(role="Penetration Tester", responsibilities=["Conducting authorized tests on computer systems to expose vulnerabilities", "Writing detailed reports on findings", "Simulating real-world attacks"], abilities=["code_executor", "file_system", "browser"]),
             "subordinates": []
         }
     }
