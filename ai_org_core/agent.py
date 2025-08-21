@@ -7,7 +7,7 @@ import json
 from .persona import Persona
 from .knowledge import KnowledgeBase
 from .task import Task
-from .tools import browser_tool
+from .tools import browser_tool, code_executor_tool
 
 load_dotenv()
 
@@ -17,8 +17,9 @@ class Delegation(BaseModel):
     new_task_description: str = Field(description="A new, specific task description for the subordinate.")
 
 class UseTool(BaseModel):
-    tool_name: str = Field(description="The name of the tool to use, e.g., 'browser'.")
-    argument: str = Field(description="The argument for the tool, e.g., a URL for the browser.")
+    tool_name: str = Field(description="The name of the tool to use, e.g., 'browser' or 'code_executor'.")
+    method: str = Field(description="The method of the tool to call, e.g., 'browse_and_scrape' or 'write_code'.")
+    arguments: Dict[str, str] = Field(description="The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print("Hello")'}.")
 
 class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
@@ -33,7 +34,10 @@ class AIAgent:
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
-        self.tools = {"browser": browser_tool}
+        self.tools = {
+            "browser": browser_tool,
+            "code_executor": code_executor_tool
+        }
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
@@ -72,7 +76,7 @@ class AIAgent:
         **Your Decision:**
         Based on the task, your role, and your abilities, you must decide on one of three actions:
         1. **delegate**: If the task is better suited for a subordinate, delegate it.
-        2. **use_tool**: If you have an ability (a tool) that can help you complete the task, use it. For the 'browser' tool, the argument must be a valid URL.
+        2. **use_tool**: If you have an ability (a tool) that can help, specify the tool name, the method to use, and a dictionary of arguments. For the 'browser' tool, the method is 'browse_and_scrape' and the argument is {'url': 'https://...'}. For the 'code_executor' tool, the methods are 'lint_code', 'write_code', and 'execute_code'.
         3. **execute**: If you can complete the task yourself without tools, provide the final answer.
 
         You must format your response as a JSON object matching the required schema.

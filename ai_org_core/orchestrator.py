@@ -48,20 +48,28 @@ class Organization:
 
             elif action_result.action == 'use_tool':
                 tool_name = action_result.details.tool_name
-                tool_argument = action_result.details.argument
+                method_name = action_result.details.method
+                arguments = action_result.details.arguments
                 
                 tool = current_agent.tools.get(tool_name)
                 if not tool:
                     return f"Error: Agent {current_agent.persona.role} tried to use a non-existent tool: {tool_name}"
                 
-                # For now, we only have the browser tool with one method
-                if tool_name == "browser":
-                    tool_result = tool.browse_and_scrape(tool_argument)
-                else:
-                    return f"Error: Unknown tool method for {tool_name}"
+                method = getattr(tool, method_name, None)
+                if not method:
+                    return f"Error: Tool '{tool_name}' does not have a method '{method_name}'"
+
+                try:
+                    tool_result = method(**arguments)
+                except TypeError as e:
+                    return f"Error: Invalid arguments for {tool_name}.{method_name}: {e}"
 
                 # The task description is updated with the result, and given back to the same agent
-                task.description = f"You just used the {tool_name} tool with the argument '{tool_argument}'. The result was: \n\n{tool_result}\n\nNow, using this new information, complete your original task: {task.description}"
+                task.description = f"You just used the {tool_name} tool by calling the '{method_name}' method. The result was: 
+
+{tool_result}
+
+Now, using this new information, complete your original task: {task.description}"
                 # The current_agent remains the same for the next loop iteration
             else:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."

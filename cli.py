@@ -27,7 +27,7 @@ def define_organization_structure() -> dict:
             "persona": Persona(
                 role="CTO",
                 responsibilities=["Oversee all technical aspects", "Manage technology development"],
-                abilities=["browser"] # Granting the browser tool ability
+                abilities=["browser", "code_executor"] # Granting browser and code execution abilities
             ),
             "subordinates": [] # The CTO executes tasks directly
         }

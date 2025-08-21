@@ -4,3 +4,4 @@ python-dotenv
 langchain-google-genai
 pydantic
 playwright
+ruff
