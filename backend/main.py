@@ -34,19 +34,19 @@ def define_organization_structure() -> dict:
             "subordinates": ["Technology / Engineering", "R&D"]
         },
         "CIO": {
-            "persona": Persona(role="CIO", responsibilities=["Oversee the company-wide data strategy", "Ensure data integrity and governance", "Facilitate insights from data"]),
+            "persona": Persona(role="CIO", responsibilities=["Overseeing the company-wide data strategy and IT infrastructure", "Managing information security and risk management", "Ensuring data governance and compliance"]),
             "subordinates": ["Data Analyst Team", "Systems Administration Team"]
         },
         "CHRO": {
-            "persona": Persona(role="CHRO", responsibilities=["Agent resources", "Culture", "Training"]),
+            "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"]),
             "subordinates": ["HR & Administration"]
         },
         "CMO": {
-            "persona": Persona(role="CMO", responsibilities=["Brand", "Growth", "Customer acquisition"], abilities=["browser"]),
+            "persona": Persona(role="CMO", responsibilities=["Developing and executing the overall marketing strategy", "Overseeing market research, branding, and advertising", "Driving revenue growth and customer acquisition"], abilities=["browser"]),
             "subordinates": ["Marketing & Sales"]
         },
         "CSO": {
-            "persona": Persona(role="Chief Security Officer", responsibilities=["Oversee all security aspects", "Vulnerability management"]),
+            "persona": Persona(role="Chief Security Officer", responsibilities=["Developing and implementing the overall security strategy", "Managing cybersecurity and physical security", "Overseeing risk management and incident response"]),
             "subordinates": ["Security Team"]
         },
 
