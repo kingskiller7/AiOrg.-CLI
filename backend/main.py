@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import os
 from crewai import Crew, Process, Task
-from backend.core.agents import AiOrgAgents
+from core.agents import AiOrgAgents
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 
