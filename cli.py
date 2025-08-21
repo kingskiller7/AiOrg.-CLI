@@ -63,7 +63,7 @@ def define_organization_structure() -> dict:
         },
         "Technology / Engineering": {
             "persona": Persona(role="Technology / Engineering", responsibilities=["Managing the software development lifecycle", "Ensuring the quality and stability of the technical architecture", "Leading and mentoring the engineering team"]),
-            "subordinates": []
+            "subordinates": ["Senior Software Engineer"]
         },
         "HR & Administration": {
             "persona": Persona(role="HR & Administration", responsibilities=["Managing recruitment, onboarding, and employee relations", "Developing and enforcing HR policies and compliance", "Overseeing office administration and record-keeping"]),
@@ -79,7 +79,7 @@ def define_organization_structure() -> dict:
         },
         "R&D": {
             "persona": Persona(role="R&D", responsibilities=["Developing and executing the R&D strategy", "Leading new product development and innovation", "Managing the R&D team and budget"]),
-            "subordinates": []
+            "subordinates": ["Lead Researcher"]
         },
         "Procurement": {
             "persona": Persona(role="Procurement", responsibilities=["Developing and implementing procurement strategies", "Managing supplier and vendor relationships", "Negotiating contracts and optimizing costs"]),
@@ -93,6 +93,16 @@ def define_organization_structure() -> dict:
         },
         "Systems Administration Team": {
             "persona": Persona(role="Systems Administration Team", responsibilities=["Installing, configuring, and maintaining server and network infrastructure", "Managing user accounts and system permissions", "Monitoring system performance and security"], abilities=["file_system"]),
+            "subordinates": []
+        },
+
+        # 5. Operational Staff
+        "Senior Software Engineer": {
+            "persona": Persona(role="Senior Software Engineer", responsibilities=["Writing complex code modules", "Debugging critical issues", "Implementing core application features"], abilities=["code_executor", "file_system"]),
+            "subordinates": []
+        },
+        "Lead Researcher": {
+            "persona": Persona(role="Lead Researcher", responsibilities=["Conducting in-depth technical research", "Analyzing emerging technologies", "Summarizing complex findings for leadership"], abilities=["browser"]),
             "subordinates": []
         }
     }
