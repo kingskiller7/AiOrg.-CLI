@@ -15,6 +15,8 @@ fi
 # Activate virtual environment and install requirements
 source venv/bin/activate
 pip install -r requirements.txt
+# Install playwright browsers
+playwright install
 deactivate
 cd ..
 

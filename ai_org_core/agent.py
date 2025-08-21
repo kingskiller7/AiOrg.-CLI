@@ -7,27 +7,33 @@ import json
 from .persona import Persona
 from .knowledge import KnowledgeBase
 from .task import Task
+from .tools import browser_tool
 
 load_dotenv()
 
-# Pydantic models for structured LLM output
+# --- Pydantic models for structured LLM output ---
 class Delegation(BaseModel):
     recipient_role: str = Field(description="The role of the agent to delegate the task to.")
     new_task_description: str = Field(description="A new, specific task description for the subordinate.")
+
+class UseTool(BaseModel):
+    tool_name: str = Field(description="The name of the tool to use, e.g., 'browser'.")
+    argument: str = Field(description="The argument for the tool, e.g., a URL for the browser.")
 
 class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
 
 class AgentAction(BaseModel):
-    action: str = Field(description="Either 'delegate' or 'execute'.")
-    details: Delegation | FinalAnswer
+    action: str = Field(description="Either 'delegate', 'use_tool', or 'execute'.")
+    details: Delegation | UseTool | FinalAnswer
 
 class AIAgent:
-    """Represents a custom AI agent that can execute or delegate tasks."""
+    """Represents a custom AI agent that can execute, delegate, or use tools."""
     def __init__(self, persona: Persona, organization=None):
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
+        self.tools = {"browser": browser_tool}
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
@@ -45,12 +51,14 @@ class AIAgent:
 
     def _create_prompt(self, task: Task, delegator_role: str) -> str:
         subordinate_roles = ", ".join(self.organization.get_subordinates(self.persona.role)) or "None"
+        available_abilities = ", ".join(self.persona.abilities) or "None"
+        
         prompt = f"""
         You are an AI agent, **{self.persona.role}**, within a larger organization.
 
         **Your Persona:**
         - Responsibilities: {', '.join(self.persona.responsibilities)}
-        - Core Views: {', '.join(self.persona.views)}
+        - Your Abilities: **{available_abilities}**
 
         **Organizational Context:**
         - The task was delegated to you by: **{delegator_role}**.
@@ -62,9 +70,10 @@ class AIAgent:
         - Expected Output: {task.expected_output}
 
         **Your Decision:**
-        Based on the task and your role, you must decide on one of two actions:
-        1. **delegate**: If the task is too broad for you and is better suited for one of your subordinates, delegate it. Choose the best subordinate and write a new, more specific task description for them.
-        2. **execute**: If the task is within your direct responsibilities and you can complete it yourself, provide the final, complete response.
+        Based on the task, your role, and your abilities, you must decide on one of three actions:
+        1. **delegate**: If the task is better suited for a subordinate, delegate it.
+        2. **use_tool**: If you have an ability (a tool) that can help you complete the task, use it. For the 'browser' tool, the argument must be a valid URL.
+        3. **execute**: If you can complete the task yourself without tools, provide the final answer.
 
         You must format your response as a JSON object matching the required schema.
         """
@@ -72,7 +81,8 @@ class AIAgent:
 
     def execute_task(self, task: Task, delegator=None) -> AgentAction:
         delegator_role = delegator.persona.role if delegator else "The User"
-        task.history.append(self.persona.role)
+        if self.persona.role not in task.history:
+            task.history.append(self.persona.role)
         print(f"[{self.persona.role}] received task '{task.description}' from [{delegator_role}].")
 
         prompt = self._create_prompt(task, delegator_role)
@@ -83,7 +93,9 @@ class AIAgent:
         if response.action == 'execute':
             self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
             print(f"[{self.persona.role}] has executed the task.")
-        else:
+        elif response.action == 'delegate':
             print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient_role}].")
+        elif response.action == 'use_tool':
+            print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
         
         return response

@@ -43,14 +43,26 @@ class Organization:
                 if not next_agent:
                     return f"Error: Agent {current_agent.persona.role} tried to delegate to non-existent role {recipient_role}."
                 
-                # Create the new sub-task
-                task = Task(
-                    description=action_result.details.new_task_description,
-                    expected_output=task.expected_output, # The final output expectation remains the same
-                    assigned_to=recipient_role,
-                    history=task.history # Pass the history along
-                )
+                task.description = action_result.details.new_task_description
                 current_agent = next_agent
+
+            elif action_result.action == 'use_tool':
+                tool_name = action_result.details.tool_name
+                tool_argument = action_result.details.argument
+                
+                tool = current_agent.tools.get(tool_name)
+                if not tool:
+                    return f"Error: Agent {current_agent.persona.role} tried to use a non-existent tool: {tool_name}"
+                
+                # For now, we only have the browser tool with one method
+                if tool_name == "browser":
+                    tool_result = tool.browse_and_scrape(tool_argument)
+                else:
+                    return f"Error: Unknown tool method for {tool_name}"
+
+                # The task description is updated with the result, and given back to the same agent
+                task.description = f"You just used the {tool_name} tool with the argument '{tool_argument}'. The result was: \n\n{tool_result}\n\nNow, using this new information, complete your original task: {task.description}"
+                # The current_agent remains the same for the next loop iteration
             else:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."
 
