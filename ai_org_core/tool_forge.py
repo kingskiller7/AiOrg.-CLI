@@ -2,9 +2,11 @@ import os
 import json
 import importlib.util
 
+from .config import CUSTOM_TOOLS_DIR
+
 class ToolForge:
     """Manages the creation and loading of custom, agent-created tools."""
-    def __init__(self, custom_tools_dir: str = "/home/kingubaish786/AiOrganisation/workspace/custom_tools"):
+    def __init__(self, custom_tools_dir = CUSTOM_TOOLS_DIR):
         self.custom_tools_dir = custom_tools_dir
         self.manifest_path = os.path.join(self.custom_tools_dir, "manifest.json")
         

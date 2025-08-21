@@ -2,9 +2,11 @@ import lancedb
 from sentence_transformers import SentenceTransformer
 import os
 
+from .config import MEMORY_DIR
+
 class KnowledgeBase:
     """Manages an agent's memory using a LanceDB vector store."""
-    def __init__(self, agent_role: str, db_path: str = "/home/kingubaish786/AiOrganisation/workspace/memory"):
+    def __init__(self, agent_role: str, db_path: str = MEMORY_DIR):
         self.agent_role = agent_role
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
         

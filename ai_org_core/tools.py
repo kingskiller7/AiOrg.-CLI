@@ -1,8 +1,10 @@
 from playwright.sync_api import sync_playwright
 import subprocess
 import os
-
+from .config import WORKSPACE_DIR
 from .tool_forge import ToolForge
+
+class BrowserTool:
     """A tool for browsing websites and scraping their content."""
     def browse_and_scrape(self, url: str) -> str:
         """Visits a URL and returns the text content of the page."""
@@ -20,7 +22,7 @@ from .tool_forge import ToolForge
 
 class CodeExecutionTool:
     """A tool for writing, linting, and executing Python code in a sandbox."""
-    def __init__(self, work_dir: str = "/home/kingubaish786/AiOrganisation/workspace"):
+    def __init__(self, work_dir = WORKSPACE_DIR):
         self.work_dir = work_dir
         if not os.path.exists(self.work_dir):
             os.makedirs(self.work_dir)
@@ -63,7 +65,7 @@ class CodeExecutionTool:
 
 class FileSystemTool:
     """A tool for interacting with the local file system in a sandboxed workspace."""
-    def __init__(self, work_dir: str = "/home/kingubaish786/AiOrganisation/workspace"):
+    def __init__(self, work_dir = WORKSPACE_DIR):
         self.work_dir = work_dir
         if not os.path.exists(self.work_dir):
             os.makedirs(self.work_dir)
