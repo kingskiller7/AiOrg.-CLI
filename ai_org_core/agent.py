@@ -76,7 +76,9 @@ class AIAgent:
         **Your Decision:**
         Based on the task, your role, and your abilities, you must decide on one of three actions:
         1. **delegate**: If the task is better suited for a subordinate, delegate it.
-        2. **use_tool**: If you have an ability (a tool) that can help, specify the tool name, the method to use, and a dictionary of arguments. For the 'browser' tool, the method is 'browse_and_scrape' and the argument is {'url': 'https://...'}. For the 'code_executor' tool, the methods are 'lint_code', 'write_code', and 'execute_code'.
+        2. **use_tool**: If you have an ability (a tool) that can help, specify the tool name, the method to use, and a dictionary of arguments. 
+        - To search the web, use the 'browser' tool with the 'browse_and_scrape' method. You must formulate a search engine URL yourself (e.g., {'url': 'https://www.google.com/search?q=your+search+query'}).
+        - For the 'code_executor' tool, the methods are 'lint_code', 'write_code', and 'execute_code'.
         3. **execute**: If you can complete the task yourself without tools, provide the final answer.
 
         You must format your response as a JSON object matching the required schema.
