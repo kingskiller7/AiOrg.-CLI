@@ -56,7 +56,7 @@ def execute_task(request: TaskRequest):
             tasks=[task],
             process=Process.hierarchical,
             manager_llm=llm,
-            verbose=2
+            verbose=True
         )
 
         # Kick off the crew's work
