@@ -1,15 +1,32 @@
 from typing import Dict, List
 from .agent import AIAgent
 from .task import Task
+from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge
 
 class Organization:
-    """The main orchestrator that manages the full, hierarchical workflow."""
+    """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
     def __init__(self, structure: Dict[str, Dict]):
         self.agents: Dict[str, AIAgent] = {}
         self.hierarchy: Dict[str, List[str]] = {}
 
+        # Load all available tools
+        self.tool_forge = tool_forge
+        custom_tools = self.tool_forge.load_custom_tools()
+        self.available_tools = {
+            "browser": browser_tool,
+            "code_executor": code_executor_tool,
+            "file_system": file_system_tool,
+            "tool_forge": self.tool_forge,
+            **custom_tools
+        }
+
+        # Create all agent instances and provide them with the full toolset
         for role, details in structure.items():
-            self.agents[role] = AIAgent(persona=details["persona"], organization=self)
+            self.agents[role] = AIAgent(
+                persona=details["persona"],
+                organization=self,
+                all_tools=self.available_tools
+            )
             self.hierarchy[role] = details.get("subordinates", [])
 
         self.ceo = self.agents.get("CEO")
@@ -40,16 +57,13 @@ class Organization:
                 final_response = action_result.details.response
                 manager_role = self.get_manager(current_agent.persona.role)
                 
-                # If the agent has no manager (i.e., it's the CEO), the work is done.
                 if not manager_role:
                     print("--- Organization Task Complete (CEO Finalized) ---")
                     return final_response
                 
-                # --- Upward Reporting Logic ---
                 print(f"[{current_agent.persona.role}] is reporting results to manager [{manager_role}].")
-                # Formulate a new task for the manager to review the subordinate's work
                 task = Task(
-                    description=f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is below. Please review, consolidate it with any other information, and decide on the next action to fulfill our original goal: '{task.description}'\n\nSUBORDINATE'S REPORT:\n---\n{final_response}",
+                    description=f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is below. Please review and decide the next action. Original goal: '{task.description}'\n\nSUBORDINATE'S REPORT:\n---\n{final_response}",
                     expected_output=task.expected_output,
                     assigned_to=manager_role,
                     history=task.history
@@ -71,7 +85,7 @@ class Organization:
                 method_name = action_result.details.method
                 arguments = action_result.details.arguments
                 
-                tool = current_agent.tools.get(tool_name)
+                tool = self.available_tools.get(tool_name)
                 if not tool:
                     return f"Error: Agent {current_agent.persona.role} tried to use a non-existent tool: {tool_name}"
                 

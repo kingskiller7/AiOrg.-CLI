@@ -31,15 +31,11 @@ class AgentAction(BaseModel):
 
 class AIAgent:
     """Represents a custom AI agent that can execute, delegate, or use tools."""
-    def __init__(self, persona: Persona, organization=None):
+    def __init__(self, persona: Persona, organization=None, all_tools=None):
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
-        self.tools = {
-            "browser": browser_tool,
-            "code_executor": code_executor_tool,
-            "file_system": file_system_tool
-        }
+        self.tools = all_tools if all_tools is not None else {}
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
@@ -84,6 +80,12 @@ class AIAgent:
         1. First, think step-by-step. Formulate a plan to address the task.
         2. Based on the first step of your plan, decide on your immediate next action.
         3. You have three possible actions: `delegate`, `use_tool`, or `execute`.
+
+        **Tool Usage Guide:**
+        - To create a new, permanent ability, use the 'tool_forge' tool with the 'create_tool' method. You must provide a unique 'tool_name', a clear 'description', and the complete Python 'code' for the new tool.
+        - To search the web, use the 'browser' tool with the 'browse_and_scrape' method by formulating a search engine URL.
+        - For file system operations, use the 'file_system' tool with methods like 'list_directory', 'read_file', and 'write_file'.
+        - For code-related tasks, use the 'code_executor' tool with methods like 'lint_code', 'write_code', and 'execute_code'.
 
         You must format your response as a JSON object matching the required schema, including your plan and your chosen next action.
         """

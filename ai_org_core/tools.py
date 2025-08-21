@@ -2,7 +2,7 @@ from playwright.sync_api import sync_playwright
 import subprocess
 import os
 
-class BrowserTool:
+from .tool_forge import ToolForge
     """A tool for browsing websites and scraping their content."""
     def browse_and_scrape(self, url: str) -> str:
         """Visits a URL and returns the text content of the page."""
@@ -106,3 +106,4 @@ class FileSystemTool:
 browser_tool = BrowserTool()
 code_executor_tool = CodeExecutionTool()
 file_system_tool = FileSystemTool()
+tool_forge = ToolForge()
