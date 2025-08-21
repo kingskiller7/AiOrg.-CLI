@@ -10,21 +10,21 @@ def define_organization_structure() -> dict:
     structure = {
         # 1. Top Management
         "CEO": {
-            "persona": Persona(role="CEO", responsibilities=["Final decision-making", "Strategy execution"]),
+            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization"]),
             "subordinates": ["COO", "CFO", "CTO", "CIO", "CHRO", "CMO", "CSO"]
         },
 
         # 2. Executive Leadership (C-Suite)
         "COO": {
-            "persona": Persona(role="COO", responsibilities=["Day-to-day operations", "Process efficiency"]),
+            "persona": Persona(role="COO", responsibilities=["Overseeing the company's day-to-day administrative and operational functions", "Translating strategy into actionable plans", "Managing company resources and process improvement"]),
             "subordinates": ["Operations", "Customer Service", "Procurement"]
         },
         "CFO": {
-            "persona": Persona(role="CFO", responsibilities=["Financial planning", "Accounting"], abilities=["file_system"]),
+            "persona": Persona(role="CFO", responsibilities=["Managing the company's financial planning and analysis", "Overseeing budgeting and cash flow", "Performing risk management", "Ensuring compliance with financial regulations"], abilities=["file_system"]),
             "subordinates": ["Finance & Accounts"]
         },
         "CTO": {
-            "persona": Persona(role="CTO", responsibilities=["Tech strategy", "Product development"], abilities=["browser", "code_executor", "file_system", "tool_forge"]),
+            "persona": Persona(role="CTO", responsibilities=["Developing the company's technology strategy to align with business goals", "Overseeing the development and implementation of new technologies", "Managing the technology team and technical architecture"], abilities=["browser", "code_executor", "file_system", "tool_forge"]),
             "subordinates": ["Technology / Engineering", "R&D"]
         },
         "CIO": {
