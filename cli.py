@@ -21,15 +21,29 @@ def define_organization_structure() -> dict:
                 role="COO",
                 responsibilities=["Manage day-to-day operations", "Ensure operational efficiency"],
             ),
-            "subordinates": [] # The COO executes tasks directly in this simple setup
+            "subordinates": ["Operations Manager"]
         },
         "CTO": {
             "persona": Persona(
                 role="CTO",
                 responsibilities=["Oversee all technical aspects", "Manage technology development"],
-                abilities=["browser", "code_executor", "file_system"] # Granting all technical abilities
+                abilities=["browser", "code_executor", "file_system"]
             ),
-            "subordinates": [] # The CTO executes tasks directly
+            "subordinates": ["Engineering Head"]
+        },
+        "Operations Manager": {
+            "persona": Persona(
+                role="Operations Manager",
+                responsibilities=["Execute operational tasks", "Manage logistics"],
+            ),
+            "subordinates": []
+        },
+        "Engineering Head": {
+            "persona": Persona(
+                role="Engineering Head",
+                responsibilities=["Lead development projects", "Manage engineering team"],
+            ),
+            "subordinates": []
         }
     }
     return structure
