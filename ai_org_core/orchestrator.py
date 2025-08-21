@@ -1,14 +1,13 @@
 from typing import Dict, List
-from .agent import AIAgent, AgentAction
+from .agent import AIAgent
 from .task import Task
 
 class Organization:
-    """The main orchestrator that manages the delegation workflow."""
+    """The main orchestrator that manages the full, hierarchical workflow."""
     def __init__(self, structure: Dict[str, Dict]):
         self.agents: Dict[str, AIAgent] = {}
         self.hierarchy: Dict[str, List[str]] = {}
 
-        # First, create all agent instances
         for role, details in structure.items():
             self.agents[role] = AIAgent(persona=details["persona"], organization=self)
             self.hierarchy[role] = details.get("subordinates", [])
@@ -20,7 +19,13 @@ class Organization:
     def get_subordinates(self, role: str) -> List[str]:
         return self.hierarchy.get(role, [])
 
-    def kickoff(self, task: Task, max_delegations: int = 5) -> str:
+    def get_manager(self, role: str) -> str | None:
+        for manager, subordinates in self.hierarchy.items():
+            if role in subordinates:
+                return manager
+        return None
+
+    def kickoff(self, task: Task, max_delegations: int = 10) -> str:
         print("--- Organization Task Kickoff ---")
         
         current_agent = self.agents.get(task.assigned_to)
@@ -33,8 +38,23 @@ class Organization:
 
             if action_result.action == 'execute':
                 final_response = action_result.details.response
-                print("--- Organization Task Complete ---")
-                return final_response
+                manager_role = self.get_manager(current_agent.persona.role)
+                
+                # If the agent has no manager (i.e., it's the CEO), the work is done.
+                if not manager_role:
+                    print("--- Organization Task Complete (CEO Finalized) ---")
+                    return final_response
+                
+                # --- Upward Reporting Logic ---
+                print(f"[{current_agent.persona.role}] is reporting results to manager [{manager_role}].")
+                # Formulate a new task for the manager to review the subordinate's work
+                task = Task(
+                    description=f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is below. Please review, consolidate it with any other information, and decide on the next action to fulfill our original goal: '{task.description}'\n\nSUBORDINATE'S REPORT:\n---\n{final_response}",
+                    expected_output=task.expected_output,
+                    assigned_to=manager_role,
+                    history=task.history
+                )
+                current_agent = self.agents.get(manager_role)
             
             elif action_result.action == 'delegate':
                 recipient_role = action_result.details.recipient_role
@@ -64,13 +84,7 @@ class Organization:
                 except TypeError as e:
                     return f"Error: Invalid arguments for {tool_name}.{method_name}: {e}"
 
-                # The task description is updated with the result, and given back to the same agent
-                task.description = f"You just used the {tool_name} tool by calling the '{method_name}' method. The result was: 
-
-{tool_result}
-
-Now, using this new information, complete your original task: {task.description}"
-                # The current_agent remains the same for the next loop iteration
+                task.description = f"You just used the {tool_name} tool by calling the '{method_name}' method. The result was: \n\n{tool_result}\n\nNow, using this new information, complete your original task: {task.description}"
             else:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."
 
