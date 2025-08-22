@@ -8,11 +8,16 @@ export default function Home() {
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const clearFile = () => {
+    setFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +27,7 @@ export default function Home() {
     setIsLoading(true);
     setResult('');
     setError('');
+    setUploadProgress(0);
 
     let filePath: string | null = null;
 
@@ -30,20 +36,36 @@ export default function Home() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const uploadResponse = await fetch('http://127.0.0.1:8000/api/upload', {
-          method: 'POST',
-          body: formData,
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://127.0.0.1:8000/api/upload', true);
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = (event.loaded / event.total) * 100;
+            setUploadProgress(percentComplete);
+          }
+        };
+
+        const uploadPromise = new Promise<string>((resolve, reject) => {
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              if (response.error) {
+                reject(new Error(response.error));
+              } else {
+                resolve(response.file_path);
+              }
+            } else {
+              reject(new Error(`File upload failed: ${xhr.statusText}`));
+            }
+          };
+          xhr.onerror = () => {
+            reject(new Error('File upload failed.'));
+          };
         });
 
-        if (!uploadResponse.ok) {
-          throw new Error(`File upload failed: ${uploadResponse.statusText}`);
-        }
-
-        const uploadData = await uploadResponse.json();
-        if (uploadData.error) {
-          throw new Error(uploadData.error);
-        }
-        filePath = uploadData.file_path;
+        xhr.send(formData);
+        filePath = await uploadPromise;
       }
 
       const response = await fetch('http://127.0.0.1:8000/api/execute-task', {
@@ -70,7 +92,12 @@ export default function Home() {
       setError(err.message || 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(result);
   };
 
   return (
@@ -91,13 +118,26 @@ export default function Home() {
             <label htmlFor="file-upload" className="block text-sm font-medium text-gray-400 mb-2">
               Attach a file (optional)
             </label>
-            <input 
-              id="file-upload"
-              type="file"
-              onChange={handleFileChange}
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              disabled={isLoading}
-            />
+            <div className="flex items-center">
+              <input 
+                id="file-upload"
+                type="file"
+                onChange={handleFileChange}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                disabled={isLoading}
+              />
+              {file && (
+                <button type="button" onClick={clearFile} className="ml-4 text-sm text-red-500 hover:text-red-700" disabled={isLoading}>Clear</button>
+              )}
+            </div>
+            {file && (
+              <div className="mt-2 text-sm text-gray-400">Selected file: {file.name}</div>
+            )}
+            {uploadProgress > 0 && (
+              <div className="mt-2 w-full bg-gray-700 rounded-full h-2.5">
+                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+              </div>
+            )}
           </div>
           <button 
             type="submit"
@@ -110,7 +150,12 @@ export default function Home() {
 
         {(result || error || isLoading) && (
           <div className="mt-8 w-full p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4">Result</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Result</h2>
+              {result && (
+                <button onClick={copyToClipboard} className="text-sm text-blue-500 hover:text-blue-700">Copy</button>
+              )}
+            </div>
             {isLoading && <p className="text-gray-400">The AI crew is working on your task. Please wait...</p>}
             {error && <pre className="text-red-400 whitespace-pre-wrap">{`Error: ${error}`}</pre>}
             {result && <pre className="text-gray-300 whitespace-pre-wrap">{result}</pre>}
