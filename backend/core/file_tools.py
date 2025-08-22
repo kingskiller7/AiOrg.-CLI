@@ -3,7 +3,7 @@ import zipfile
 import pypdf
 import docx
 import google.generativeai as genai
-from ai_org_core.config import UPLOAD_DIR
+from core.config import UPLOAD_DIR
 
 def read_document(file_path: str) -> str:
     """Reads the content of a document file."""

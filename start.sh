@@ -9,8 +9,8 @@ set -e
 echo "Starting backend server on http://127.0.0.1:8000..."
 # Activate the virtual environment from the root
 source backend/venv/bin/activate
-# Run uvicorn from the root, pointing it to the app object in backend/main.py
-uvicorn backend.main:app --reload &
+# Set PYTHONPATH to include the backend directory and run uvicorn
+PYTHONPATH=backend uvicorn backend.main:app --reload &
 
 # Give the backend a moment to start up
 sleep 5

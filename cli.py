@@ -1,8 +1,8 @@
 import argparse
 
-from ai_org_core.persona import Persona
-from ai_org_core.task import Task
-from ai_org_core.orchestrator import Organization
+from backend.core.persona import Persona
+from backend.core.task import Task
+from backend.core.orchestrator import Organization
 
 def define_organization_structure() -> dict:
     """Defines the agents, personas, and hierarchy of the organization."""

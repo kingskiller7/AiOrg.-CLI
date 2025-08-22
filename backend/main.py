@@ -1,18 +1,30 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import shutil
 import os
 
-from ai_org_core.persona import Persona
-from ai_org_core.task import Task
-from ai_org_core.orchestrator import Organization
-from ai_org_core.config import WORKSPACE_DIR, UPLOAD_DIR
+from core.persona import Persona
+from core.task import Task
+from core.orchestrator import Organization
+from core.config import WORKSPACE_DIR, UPLOAD_DIR
 
 app = FastAPI(
     title="AiOrg Framework API",
     description="An API for orchestrating a custom AI agent organization.",
     version="1.3.0",
+)
+
+url = os.getenv("FRONTEND_API_URL", "http://localhost:3000")
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["url"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Ensure the workspace and upload directories exist
