@@ -27,3 +27,4 @@ pnpm-lock.yaml
 
 # Uploads
 /workspace/uploads/
+/frontend/.env.local

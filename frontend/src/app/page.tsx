@@ -37,7 +37,7 @@ export default function Home() {
         formData.append('file', file);
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://127.0.0.1:8000/api/upload', true);
+        xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/api/upload`, true);
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
@@ -68,7 +68,7 @@ export default function Home() {
         filePath = await uploadPromise;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/execute-task', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/execute-task`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
