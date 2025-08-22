@@ -24,3 +24,6 @@ pnpm-lock.yaml
 # Project Artifacts
 /workspace/
 /results/
+
+# Uploads
+/workspace/uploads/

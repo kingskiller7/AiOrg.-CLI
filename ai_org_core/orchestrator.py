@@ -1,7 +1,7 @@
 from typing import Dict, List
 from .agent import AIAgent
 from .task import Task
-from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge
+from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
@@ -17,6 +17,7 @@ class Organization:
             "code_executor": code_executor_tool,
             "file_system": file_system_tool,
             "tool_forge": self.tool_forge,
+            "file_processing": file_processing_tool,
             **custom_tools
         }
 

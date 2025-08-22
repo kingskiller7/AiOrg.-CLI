@@ -4,9 +4,16 @@ import { useState } from 'react';
 
 export default function Home() {
   const [task, setTask] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,13 +23,35 @@ export default function Home() {
     setResult('');
     setError('');
 
+    let filePath: string | null = null;
+
     try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const uploadResponse = await fetch('http://127.0.0.1:8000/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`File upload failed: ${uploadResponse.statusText}`);
+        }
+
+        const uploadData = await uploadResponse.json();
+        if (uploadData.error) {
+          throw new Error(uploadData.error);
+        }
+        filePath = uploadData.file_path;
+      }
+
       const response = await fetch('http://127.0.0.1:8000/api/execute-task', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify({ task, file_path: filePath }),
       });
 
       if (!response.ok) {
@@ -58,6 +87,18 @@ export default function Home() {
             rows={5}
             disabled={isLoading}
           />
+          <div className="mt-4">
+            <label htmlFor="file-upload" className="block text-sm font-medium text-gray-400 mb-2">
+              Attach a file (optional)
+            </label>
+            <input 
+              id="file-upload"
+              type="file"
+              onChange={handleFileChange}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              disabled={isLoading}
+            />
+          </div>
           <button 
             type="submit"
             disabled={isLoading}

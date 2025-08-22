@@ -3,6 +3,7 @@ import subprocess
 import os
 from .config import WORKSPACE_DIR
 from .tool_forge import ToolForge
+from . import file_tools
 
 class BrowserTool:
     """A tool for browsing websites and scraping their content."""
@@ -104,8 +105,23 @@ class FileSystemTool:
         except Exception as e:
             return f"Error writing file: {e}"
 
+class FileProcessingTool:
+    """A tool for processing files."""
+    def read_document(self, file_path: str) -> str:
+        return file_tools.read_document(file_path)
+
+    def extract_zip(self, file_path: str) -> list[str]:
+        return file_tools.extract_zip(file_path)
+
+    def analyze_image(self, file_path: str, prompt: str) -> str:
+        return file_tools.analyze_image(file_path, prompt)
+
+    def analyze_video(self, file_path: str, prompt: str) -> str:
+        return file_tools.analyze_video(file_path, prompt)
+
 # Instantiate tools for the application to use
 browser_tool = BrowserTool()
 code_executor_tool = CodeExecutionTool()
 file_system_tool = FileSystemTool()
 tool_forge = ToolForge()
+file_processing_tool = FileProcessingTool()

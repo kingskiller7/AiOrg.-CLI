@@ -1,15 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
+from typing import Optional
+import shutil
+import os
 
 from ai_org_core.persona import Persona
 from ai_org_core.task import Task
 from ai_org_core.orchestrator import Organization
+from ai_org_core.config import WORKSPACE_DIR, UPLOAD_DIR
 
 app = FastAPI(
     title="AiOrg Framework API",
     description="An API for orchestrating a custom AI agent organization.",
-    version="1.2.0", # Version bump for new structure
+    version="1.3.0",
 )
+
+# Ensure the workspace and upload directories exist
+os.makedirs(WORKSPACE_DIR, exist_ok=True)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def define_organization_structure() -> dict:
     """Defines the agents, personas, and hierarchy of the organization."""
@@ -30,7 +38,7 @@ def define_organization_structure() -> dict:
             "subordinates": ["Finance & Accounts"]
         },
         "CTO": {
-            "persona": Persona(role="CTO", responsibilities=["Developing the company's technology strategy to align with business goals", "Overseeing the development and implementation of new technologies", "Managing the technology team and technical architecture"], abilities=["browser", "code_executor", "file_system", "tool_forge"]),
+            "persona": Persona(role="CTO", responsibilities=["Developing the company's technology strategy to align with business goals", "Overseeing the development and implementation of new technologies", "Managing the technology team and technical architecture"], abilities=["browser", "code_executor", "file_system", "tool_forge", "file_processing"]),
             "subordinates": ["Technology / Engineering", "R&D"]
         },
         "CIO": {
@@ -94,7 +102,7 @@ def define_organization_structure() -> dict:
 
         # 4. CIO's Department
         "Data Analyst Team": {
-            "persona": Persona(role="Data Analyst Team", responsibilities=["Collecting, cleaning, and analyzing data from various sources", "Identifying trends, patterns, and correlations in datasets", "Creating reports and visualizations to communicate findings"], abilities=["code_executor", "file_system"]),
+            "persona": Persona(role="Data Analyst Team", responsibilities=["Collecting, cleaning, and analyzing data from various sources", "Identifying trends, patterns, and correlations in datasets", "Creating reports and visualizations to communicate findings"], abilities=["code_executor", "file_system", "file_processing"]),
             "subordinates": []
         },
         "Systems Administration Team": {
@@ -145,19 +153,34 @@ def define_organization_structure() -> dict:
 
 class TaskRequest(BaseModel):
     task: str
+    file_path: Optional[str] = None
 
 @app.get("/")
 def read_root():
     return {"message": "AiOrg API is running."}
 
+@app.post("/api/upload")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"file_path": file_path}
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.post("/api/execute-task")
-def execute__task(request: TaskRequest):
+def execute_task(request: TaskRequest):
     try:
         structure = define_organization_structure()
         organization = Organization(structure)
         
+        task_description = request.task
+        if request.file_path:
+            task_description += f"\n\nFile attached: {request.file_path}"
+
         task = Task(
-            description=request.task,
+            description=task_description,
             expected_output="A comprehensive result based on the task description.",
             assigned_to="CEO"
         )
