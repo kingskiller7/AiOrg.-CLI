@@ -13,8 +13,6 @@ from .image_to_video_tool import image_to_video
 from .text_to_speech_tool import text_to_speech
 from .text_to_video_tool import text_to_video
 
-# --- Pydantic models for structured LLM output using a Discriminated Union ---
-
 class Delegation(BaseModel):
     action: Literal["delegate"] = "delegate"
     recipient: str = Field(description="The role of the agent to delegate the task to.")
