@@ -33,32 +33,33 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def define_organization_structure() -> dict:
     """Defines the agents, personas, and hierarchy of the organization."""
+    
     structure = {
         # 1. Top Management
         "CEO": {
-            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization"]),
+            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization", "Delegating the creation of new agents to the CHRO when a task doesn't fit any existing agent's role."], abilities=["browser"]),
             "subordinates": ["COO", "CFO", "CTO", "CIO", "CHRO", "CMO", "CSO"]
         },
 
         # 2. Executive Leadership (C-Suite)
         "COO": {
-            "persona": Persona(role="COO", responsibilities=["Overseeing the company's day-to-day administrative and operational functions", "Translating strategy into actionable plans", "Managing company resources and process improvement"]),
+            "persona": Persona(role="COO", responsibilities=["Overseeing the company's day-to-day administrative and operational functions", "Translating strategy into actionable plans", "Managing company resources and process improvement"], abilities=["file_system"]),
             "subordinates": ["Operations", "Customer Service", "Procurement"]
         },
         "CFO": {
-            "persona": Persona(role="CFO", responsibilities=["Managing the company's financial planning and analysis", "Overseeing budgeting and cash flow", "Performing risk management", "Ensuring compliance with financial regulations"], abilities=["file_system"]),
+            "persona": Persona(role="CFO", responsibilities=["Managing the company's financial planning and analysis", "Overseeing budgeting and cash flow", "Performing risk management", "Ensuring compliance with financial regulations"], abilities=["file_system", "browser"]),
             "subordinates": ["Finance & Accounts"]
         },
         "CTO": {
-            "persona": Persona(role="CTO", responsibilities=["Developing the company's technology strategy to align with business goals", "Overseeing the development and implementation of new technologies", "Managing the technology team and technical architecture"], abilities=["browser", "code_executor", "file_system", "tool_forge", "file_processing"]),
+            "persona": Persona(role="CTO", responsibilities=["Developing the company's technology strategy to align with business goals", "Overseeing the development and implementation of new technologies", "Managing the technology team and technical architecture"], abilities=["browser", "code_executor", "file_system", "tool_forge"]),
             "subordinates": ["Technology / Engineering", "R&D"]
         },
         "CIO": {
-            "persona": Persona(role="CIO", responsibilities=["Overseeing the company-wide data strategy and IT infrastructure", "Managing information security and risk management", "Ensuring data governance and compliance"]),
+            "persona": Persona(role="CIO", responsibilities=["Overseeing the company-wide data strategy and IT infrastructure", "Managing information security and risk management", "Ensuring data governance and compliance"], abilities=["file_system", "file_processing"]),
             "subordinates": ["Data Analyst Team", "Systems Administration Team"]
         },
         "CHRO": {
-            "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"]),
+            "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"], abilities=["tool_management", "agent_management"]),
             "subordinates": ["HR & Administration"]
         },
         "CMO": {
@@ -66,13 +67,13 @@ def define_organization_structure() -> dict:
             "subordinates": ["Marketing & Sales"]
         },
         "CSO": {
-            "persona": Persona(role="Chief Security Officer", responsibilities=["Developing and implementing the overall security strategy", "Managing cybersecurity and physical security", "Overseeing risk management and incident response"]),
+            "persona": Persona(role="Chief Security Officer", responsibilities=["Developing and implementing the overall security strategy", "Managing cybersecurity and physical security", "Overseeing risk management and incident response"], abilities=["browser", "file_system"]),
             "subordinates": ["Security Operations Team", "Offensive Security Team"]
         },
 
         # 3. Middle Management (Functional Heads)
         "Security Operations Team": {
-            "persona": Persona(role="Security Operations Team (Blue Team)", responsibilities=["Monitoring systems for threats and vulnerabilities", "Managing and responding to security incidents", "Maintaining security infrastructure"]),
+            "persona": Persona(role="Security Operations Team (Blue Team)", responsibilities=["Monitoring systems for threats and vulnerabilities", "Managing and responding to security incidents", "Maintaining security infrastructure"], abilities=["file_system", "browser"]),
             "subordinates": ["Security Analyst"]
         },
         "Offensive Security Team": {
@@ -80,35 +81,35 @@ def define_organization_structure() -> dict:
             "subordinates": ["Penetration Tester"]
         },
         "Operations": {
-            "persona": Persona(role="Operations", responsibilities=["Overseeing daily business operations", "Improving operational efficiency and processes", "Managing production, logistics, and supply chain"]),
+            "persona": Persona(role="Operations", responsibilities=["Overseeing daily business operations", "Improving operational efficiency and processes", "Managing production, logistics, and supply chain"], abilities=["file_system"]),
             "subordinates": ["Logistics Coordinator"]
         },
         "Finance & Accounts": {
-            "persona": Persona(role="Finance & Accounts", responsibilities=["Managing daily financial operations", "Preparing financial statements and reports", "Overseeing budgeting, forecasting, and cash flow"]),
+            "persona": Persona(role="Finance & Accounts", responsibilities=["Managing daily financial operations", "Preparing financial statements and reports", "Overseeing budgeting, forecasting, and cash flow"], abilities=["file_system", "file_processing"]),
             "subordinates": []
         },
         "Technology / Engineering": {
-            "persona": Persona(role="Technology / Engineering", responsibilities=["Managing the software development lifecycle", "Ensuring the quality and stability of the technical architecture", "Leading and mentoring the engineering team"]),
+            "persona": Persona(role="Technology / Engineering", responsibilities=["Managing the software development lifecycle", "Ensuring the quality and stability of the technical architecture", "Leading and mentoring the engineering team"], abilities=["file_system", "code_executor"]),
             "subordinates": ["Senior Software Engineer"]
         },
         "HR & Administration": {
-            "persona": Persona(role="HR & Administration", responsibilities=["Managing recruitment, onboarding, and employee relations", "Developing and enforcing HR policies and compliance", "Overseeing office administration and record-keeping"]),
+            "persona": Persona(role="HR & Administration", responsibilities=["Managing recruitment, onboarding, and employee relations", "Developing and enforcing HR policies and compliance", "Overseeing office administration and record-keeping"], abilities=["file_system"]),
             "subordinates": []
         },
         "Marketing & Sales": {
-            "persona": Persona(role="Marketing & Sales", responsibilities=["Developing and implementing sales and marketing strategies", "Overseeing marketing campaigns and sales activities", "Analyzing market data and trends"]),
+            "persona": Persona(role="Marketing & Sales", responsibilities=["Developing and implementing sales and marketing strategies", "Overseeing marketing campaigns and sales activities", "Analyzing market data and trends"], abilities=["browser", "file_system"]),
             "subordinates": ["Marketing Analyst", "Sales Representative"]
         },
         "Customer Service": {
-            "persona": Persona(role="Customer Service", responsibilities=["Overseeing the customer service team", "Developing and implementing customer service policies", "Handling complex customer complaints and escalations"]),
+            "persona": Persona(role="Customer Service", responsibilities=["Overseeing the customer service team", "Developing and implementing customer service policies", "Handling complex customer complaints and escalations"], abilities=["file_system"]),
             "subordinates": ["Support Specialist"]
         },
         "R&D": {
-            "persona": Persona(role="R&D", responsibilities=["Developing and executing the R&D strategy", "Leading new product development and innovation", "Managing the R&D team and budget"]),
+            "persona": Persona(role="R&D", responsibilities=["Developing and executing the R&D strategy", "Leading new product development and innovation", "Managing the R&D team and budget"], abilities=["browser", "code_executor"]),
             "subordinates": ["Lead Researcher"]
         },
         "Procurement": {
-            "persona": Persona(role="Procurement", responsibilities=["Developing and implementing procurement strategies", "Managing supplier and vendor relationships", "Negotiating contracts and optimizing costs"]),
+            "persona": Persona(role="Procurement", responsibilities=["Developing and implementing procurement strategies", "Managing supplier and vendor relationships", "Negotiating contracts and optimizing costs"], abilities=["browser", "file_system"]),
             "subordinates": ["Purchasing Agent"]
         },
 
@@ -118,7 +119,7 @@ def define_organization_structure() -> dict:
             "subordinates": []
         },
         "Systems Administration Team": {
-            "persona": Persona(role="Systems Administration Team", responsibilities=["Installing, configuring, and maintaining server and network infrastructure", "Managing user accounts and system permissions", "Monitoring system performance and security"], abilities=["file_system"]),
+            "persona": Persona(role="Systems Administration Team", responsibilities=["Installing, configuring, and maintaining server and network infrastructure", "Managing user accounts and system permissions", "Monitoring system performance and security"], abilities=["file_system", "code_executor"]),
             "subordinates": []
         },
 
@@ -144,7 +145,7 @@ def define_organization_structure() -> dict:
             "subordinates": []
         },
         "Support Specialist": {
-            "persona": Persona(role="Support Specialist", responsibilities=["Responding to customer inquiries and issues", "Providing product support and troubleshooting", "Documenting customer interactions"], abilities=["browser"]),
+            "persona": Persona(role="Support Specialist", responsibilities=["Responding to customer inquiries and issues", "Providing product support and troubleshooting", "Documenting customer interactions"], abilities=["browser", "file_system"]),
             "subordinates": []
         },
         "Purchasing Agent": {
@@ -153,7 +154,7 @@ def define_organization_structure() -> dict:
         },
 
         "Marketing Analyst": {
-            "persona": Persona(role="Marketing Analyst", responsibilities=["Analyzing marketing campaign performance", "Conducting market research and competitor analysis", "Tracking and reporting on key metrics"], abilities=["browser"]),
+            "persona": Persona(role="Marketing Analyst", responsibilities=["Analyzing marketing campaign performance", "Conducting market research and competitor analysis", "Tracking and reporting on key metrics"], abilities=["browser", "file_system", "file_processing"]),
             "subordinates": []
         },
         "Sales Representative": {
