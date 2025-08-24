@@ -3,16 +3,10 @@ from typing import Dict, List
 from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import SentenceTransformer, util
 
-<<<<<<< HEAD
-from .agent import AIAgent, Delegation, FinalAnswer, UseTool, RequestRevision
-from .persona import Persona
-from .task import Task
-=======
 from .agent import AIAgent, AgentAction, Delegation, FinalAnswer, UseTool, RequestRevision
 from .task import Task
 from .persona import Persona
 from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
->>>>>>> 31e2464819b1a9860a146ff2595399781d00b3ea
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""

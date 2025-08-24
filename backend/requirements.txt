@@ -16,4 +16,3 @@ diffusers
 moviepy
 gtts
 pandas
-sentence_transformers
