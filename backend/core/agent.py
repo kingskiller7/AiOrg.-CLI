@@ -35,22 +35,11 @@ class AgentAction(BaseModel):
 
 class AIAgent:
     """Represents a custom AI agent that can execute, delegate, or use tools."""
-    def __init__(self, persona: Persona, organization=None, all_tools=None):
+    def __init__(self, persona: Persona, organization=None):
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
-        
-        if all_tools is None:
-            all_tools = {
-                "browser": browser_tool,
-                "code_executor": code_executor_tool,
-                "file_system": file_system_tool,
-                "text_to_image": text_to_image,
-                "image_to_video": image_to_video,
-                "text_to_speech": text_to_speech,
-                "text_to_video": text_to_video,
-            }
-        self.tools = all_tools
+        self.tools = {}
         
         # Manually load the .env file from the backend directory
         backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -62,7 +51,7 @@ class AIAgent:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'\"")
+                        api_key = value.strip().strip("'"")
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":

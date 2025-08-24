@@ -23,16 +23,20 @@ class Organization:
 
         # Create all agent instances and provide them with the full toolset
         for role, details in structure.items():
-            self.agents[role] = AIAgent(
-                persona=details["persona"],
-                organization=self,
-                all_tools=self.available_tools
-            )
+            self.add_agent(details["persona"])
             self.hierarchy[role] = details.get("subordinates", [])
 
         self.ceo = self.agents.get("CEO")
         if not self.ceo:
             raise ValueError("An Organization must have a CEO.")
+
+    def add_agent(self, persona: Persona):
+        """Adds a new agent to the organization."""
+        new_agent = AIAgent(
+            persona=persona,
+            organization=self
+        )
+        self.agents[persona.role] = new_agent
 
     def get_subordinates(self, role: str) -> List[str]:
         return self.hierarchy.get(role, [])
@@ -46,10 +50,22 @@ class Organization:
     def kickoff(self, task: Task, max_delegations: int = 10) -> str:
         print("--- Organization Task Kickoff ---")
         
-        current_agent = self.agents.get(task.assigned_to)
-        if not current_agent:
-            print(f"No agent found for role: {task.assigned_to}. Assigning to CEO.")
+        # Find the best agent for the task
+        best_agent = None
+        best_similarity = -1
+        
+        for agent in self.agents.values():
+            similarity = self._calculate_similarity(task.description, agent.persona.responsibilities)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_agent = agent
+        
+        if best_agent and best_similarity > 0.5:
+            current_agent = best_agent
+            print(f"Task assigned to {current_agent.persona.role} based on role similarity.")
+        else:
             current_agent = self.ceo
+            task.description = f"The following task could not be assigned to any existing agent: '{task.description}'. Please delegate to the CHRO to create a new agent for this task, or handle it yourself if it is within your capabilities."
 
         for i in range(max_delegations):
             action_result = current_agent.execute_task(task, current_agent)
@@ -86,6 +102,10 @@ class Organization:
                 method_name = action_result.details.method
                 arguments = action_result.details.arguments
                 
+                # Add the organization instance to the arguments if the tool needs it
+                if tool_name in ["tool_management", "agent_management"]:
+                    arguments["organization"] = self
+
                 tool = self.available_tools.get(tool_name)
                 if not tool:
                     return f"Error: Agent {current_agent.persona.role} tried to use a non-existent tool: {tool_name}"
@@ -104,3 +124,15 @@ class Organization:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."
 
         return "Error: Maximum delegation depth reached. The task could not be completed."
+
+    def _calculate_similarity(self, text1: str, text2: list[str]) -> float:
+        """Calculates the similarity between a text and a list of texts."""
+        from sentence_transformers import util
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        embedding1 = model.encode(text1, convert_to_tensor=True)
+        embedding2 = model.encode(text2, convert_to_tensor=True)
+        
+        cosine_scores = util.pytorch_cos_sim(embedding1, embedding2)
+        
+        return cosine_scores.max().item()

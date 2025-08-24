@@ -10,7 +10,7 @@ def define_organization_structure() -> dict:
     structure = {
         # 1. Top Management
         "CEO": {
-            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization"]),
+            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization", "Delegating the creation of new agents to the CHRO when a task doesn't fit any existing agent's role."]),
             "subordinates": ["COO", "CFO", "CTO", "CIO", "CHRO", "CMO", "CSO"]
         },
 
@@ -32,7 +32,7 @@ def define_organization_structure() -> dict:
             "subordinates": ["Data Analyst Team", "Systems Administration Team"]
         },
         "CHRO": {
-            "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"]),
+            "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"], abilities=["tool_management", "agent_management"]),
             "subordinates": ["HR & Administration"]
         },
         "CMO": {
