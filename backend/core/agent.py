@@ -39,34 +39,12 @@ class AgentAction(BaseModel):
 
 class AIAgent:
     """Represents a custom AI agent that can execute, delegate, or use tools."""
-    def __init__(self, persona: Persona, organization=None):
+    def __init__(self, persona: Persona, organization=None, llm=None):
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
         self.tools = {}
-        
-        # Manually load the .env file from the backend directory
-        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        env_path = os.path.join(backend_dir, '.env')
-        api_key = None
-        if os.path.exists(env_path):
-            with open(env_path, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and line.startswith('GEMINI_API_KEY'):
-                        key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'\"")
-                        break
-
-        if not api_key or api_key == "YOUR_API_KEY_HERE":
-            raise ValueError("GEMINI_API_KEY not found or not set in .env file.")
-        
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
-            verbose=True,
-            temperature=0.7,
-            google_api_key=api_key,
-        ).with_structured_output(AgentAction)
+        self.llm = llm
 
     def __repr__(self):
         return f"AIAgent(role={self.persona.role})"

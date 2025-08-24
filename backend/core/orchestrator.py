@@ -1,9 +1,9 @@
+import os
 from typing import Dict, List
-from .agent import AIAgent, Delegation, FinalAnswer, UseTool
-from .task import Task
-from .persona import Persona
-from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
+from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import SentenceTransformer, util
+
+from .agent import AIAgent, Delegation, FinalAnswer, UseTool, RequestRevision
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
@@ -11,6 +11,30 @@ class Organization:
         self.agents: Dict[str, AIAgent] = {}
         self.hierarchy: Dict[str, List[str]] = {}
         self.similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        # Manually load the .env file from the backend directory
+        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        env_path = os.path.join(backend_dir, '.env')
+        api_key = None
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and line.startswith('GEMINI_API_KEY'):
+                        key, value = line.split('=', 1)
+                        api_key = value.strip().strip("'"")
+                        break
+
+        if not api_key or api_key == "YOUR_API_KEY_HERE":
+            raise ValueError("GEMINI_API_KEY not found or not set in .env file.")
+        
+        # Create a single, shared LLM instance
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            verbose=True,
+            temperature=0,
+            google_api_key=api_key,
+        ).with_structured_output(AIAgent.AgentAction)
 
         # Load all available tools
         self.tool_forge = tool_forge
@@ -37,7 +61,8 @@ class Organization:
         """Adds a new agent to the organization."""
         new_agent = AIAgent(
             persona=persona,
-            organization=self
+            organization=self,
+            llm=self.llm
         )
         self.agents[persona.role] = new_agent
 
@@ -53,22 +78,10 @@ class Organization:
     def kickoff(self, task: Task, max_delegations: int = 10) -> str:
         print("--- Organization Task Kickoff ---")
         
-        # Find the best agent for the task
-        best_agent = None
-        best_similarity = -1
-        
-        for agent in self.agents.values():
-            similarity = self._calculate_similarity(task.description, agent.persona.responsibilities)
-            if similarity > best_similarity:
-                best_similarity = similarity
-                best_agent = agent
-        
-        if best_agent and best_similarity > 0.5:
-            current_agent = best_agent
-            print(f"Task assigned to {current_agent.persona.role} based on role similarity.")
-        else:
-            current_agent = self.ceo
-            task.description = f"The following task could not be assigned to any existing agent: '{task.description}'. Please delegate to the CHRO to create a new agent for this task, or handle it yourself if it is within your capabilities."
+        # Determine the initial agent based on the strategic workflow
+        initial_agent_role = self._determine_workflow(task.description)
+        current_agent = self.agents.get(initial_agent_role)
+        print(f"Task initially routed to {current_agent.persona.role} based on strategic workflow analysis.")
 
         for i in range(max_delegations):
             action_result = current_agent.execute_task(task, current_agent)
@@ -126,7 +139,14 @@ class Organization:
                     tool_name = action_result.details.tool_name
                     method_name = action_result.details.method
                     arguments = action_result.details.arguments
-                    
+
+                    # Enforce agent abilities
+                    if tool_name not in current_agent.persona.abilities:
+                        rejection_reason = f"Attempt to use tool '{tool_name}' failed. It is not in your list of abilities."
+                        task.description = f"Your attempt to use the '{tool_name}' tool failed because it is not in your list of abilities. You must formally request this ability from the CEO. Formulate a new task for the CEO explaining your role, the ability you need, and why you need it for your original task. Then, use the 'delegate' action to send this request to the CEO.\n\nOriginal Task: {task.description}"
+                        task.action_history.append(rejection_reason)
+                        continue # End this turn and let the agent formulate the request
+
                     # Add the organization instance to the arguments if the tool needs it
                     if tool_name in ["tool_management", "agent_management"]:
                         arguments["organization"] = self
@@ -152,6 +172,25 @@ class Organization:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."
 
         return "Error: Maximum delegation depth reached. The task could not be completed."
+
+    def _determine_workflow(self, task_description: str) -> str:
+        """Determines the primary department for a task based on keywords."""
+        tech_keywords = ['code', 'script', 'develop', 'software', 'technical', 'database', 'server', 'bug']
+        marketing_keywords = ['marketing', 'campaign', 'brand', 'advertising', 'social media', 'seo']
+        security_keywords = ['security', 'vulnerability', 'penetration test', 'firewall', 'malware']
+        finance_keywords = ['financial', 'budget', 'forecast', 'revenue', 'expense']
+
+        description = task_description.lower()
+        if any(keyword in description for keyword in tech_keywords):
+            return "CTO"
+        if any(keyword in description for keyword in marketing_keywords):
+            return "CMO"
+        if any(keyword in description for keyword in security_keywords):
+            return "CSO"
+        if any(keyword in description for keyword in finance_keywords):
+            return "CFO"
+        
+        return "CEO" # Default to CEO if no specific department is identified
 
     def _calculate_similarity(self, text1: str, text2: list[str]) -> float:
         """Calculates the similarity between a text and a list of texts."""
