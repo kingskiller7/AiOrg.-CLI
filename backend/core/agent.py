@@ -81,25 +81,49 @@ class AIAgent:
         - Expected Output: {task.expected_output}
 
         **Your Decision Process:**
-        1. First, think step-by-step. Formulate a plan to address the task.
-        2. Based on your plan, decide on your single next action.
+        1. Formulate a step-by-step plan.
+        2. Choose your single next action from the Action Reference below.
+        3. Your entire response MUST be a single JSON object containing a `plan` key and a `details` key.
 
-        **Action Guide (CRITICAL: Your output MUST be a JSON object with `plan` and `details` fields. The `details` object MUST contain an `action` field with one of four values: ["delegate", "use_tool", "execute", "request_revision"]):
+        **Action Reference:**
 
-        - To **`delegate`**: The `details` object must be: 
-          `{{"action": "delegate", "recipient": "<role>", "task_description": "<new task>"}}`
+        1.  If you need to delegate, the `details` object in your JSON response must be:
+            `{{"action": "delegate", "recipient": "<role>", "task_description": "<new task>"}}`
 
-        - To **`use_tool`**: The `details` object must be: 
-          `{{"action": "use_tool", "tool_name": "<tool>", "method": "<method>", "arguments": {{...}} }}`
+        2.  If you need to use a tool, the `details` object in your JSON response must be:
+            `{{"action": "use_tool", "tool_name": "<tool>", "method": "<method>", "arguments": {{...}} }}`
 
-        - To **`execute`** (give a final answer): The `details` object must be: 
-          `{{"action": "execute", "response": "<final answer>"}}`
+        3.  If you have the final answer, the `details` object in your JSON response must be:
+            `{{"action": "execute", "response": "<final answer>"}}`
 
-        - To **`request_revision`** (as a manager): The `details` object must be: 
-          `{{"action": "request_revision", "subordinate_to_revise": "<role>", "revision_feedback": "<feedback>"}}`
+        4.  If you are a manager requesting a revision, the `details` object in your JSON response must be:
+            `{{"action": "request_revision", "subordinate_to_revise": "<role>", "revision_feedback": "<feedback>"}}`
 
-        You must format your response as a JSON object matching the required schema.
-        """
+
+        **Example of a GOOD and COMPLETE response:**
+        ```json
+        {{
+          "plan": [
+            "First, I need to delegate the creative portion of this task to the CMO.",
+            "Then, I will review the CMO\'s work."
+          ],
+          "details": {{
+            "action": "delegate",
+            "recipient": "CMO",
+            "task_description": "Please generate a compelling story about nature."
+          }}
+        }}
+        ```
+
+        **Example of a BAD response (missing the `details` object):
+        ```json
+        {{
+          "plan": [
+            "I will delegate this to the CMO."
+          ]
+        }}
+        ```
+        """)
         return prompt
 
     def execute_task(self, task: Task, delegator=None) -> AgentAction:
