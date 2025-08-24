@@ -11,3 +11,9 @@ pypdf
 python-docx
 google-generativeai
 python-multipart
+dotenv
+diffusers
+moviepy
+gtts
+pandas
+sentence_transformers

@@ -1,4 +1,4 @@
-from moviepy.editor import ImageClip, AudioFileClip
+from moviepy import ImageClip, AudioFileClip
 from .text_to_image_tool import text_to_image
 from .text_to_speech_tool import text_to_speech
 

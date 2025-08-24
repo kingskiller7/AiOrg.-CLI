@@ -156,7 +156,7 @@ export default function Home() {
                 <button onClick={copyToClipboard} className="text-sm text-blue-500 hover:text-blue-700">Copy</button>
               )}
             </div>
-            {isLoading && <p className="text-gray-400">The AI crew is working on your task. Please wait...</p>}
+            {isLoading && <p className="text-gray-400">The AI Org. is working on your task. Please wait...</p>}
             {error && <pre className="text-red-400 whitespace-pre-wrap">{`Error: ${error}`}</pre>}
             {result && <pre className="text-gray-300 whitespace-pre-wrap">{result}</pre>}
           </div>

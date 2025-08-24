@@ -1,6 +1,6 @@
 # AI Organization
 
-This project implements a hierarchical crew of AI agents designed to accomplish complex tasks. The system is built with a Python backend using FastAPI and CrewAI, and a modern web interface developed with Next.js. This allows for a powerful and flexible way to automate and delegate complex workflows.
+This project implements a hierarchical organization of AI agents designed to accomplish complex tasks. The system is built with a Python backend using FastAPI, and a modern web interface developed with Next.js. This allows for a powerful and flexible way to automate and delegate complex workflows.
 
 ## Features
 
@@ -16,7 +16,6 @@ This project implements a hierarchical crew of AI agents designed to accomplish 
 *   **Backend:**
     *   Python
     *   FastAPI
-    *   CrewAI
     *   LangChain
     *   Google Gemini
     *   Pydantic

@@ -5,10 +5,10 @@ from typing import Optional
 import shutil
 import os
 
-from core.persona import Persona
-from core.task import Task
-from core.orchestrator import Organization
-from core.config import WORKSPACE_DIR, UPLOAD_DIR
+from .core.persona import Persona
+from .core.task import Task
+from .core.orchestrator import Organization
+from .core.config import WORKSPACE_DIR, UPLOAD_DIR
 
 app = FastAPI(
     title="AiOrg Framework API",

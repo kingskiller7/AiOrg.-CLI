@@ -4,6 +4,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import SentenceTransformer, util
 
 from .agent import AIAgent, Delegation, FinalAnswer, UseTool, RequestRevision
+from .persona import Persona
+from .task import Task
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
@@ -22,7 +24,7 @@ class Organization:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'"")
+                        api_key = value.strip().strip("'\"")
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":

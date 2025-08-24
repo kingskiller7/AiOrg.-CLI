@@ -1,4 +1,4 @@
-from moviepy.editor import ImageClip, concatenate_videoclips
+from moviepy import ImageClip, concatenate_videoclips
 
 def image_to_video(image_path: str, duration: int = 5) -> str:
     """Creates a video from an image and returns the video path."""
