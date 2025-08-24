@@ -40,18 +40,16 @@ class AIAgent:
         # Manually load the .env file from the backend directory
         backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         env_path = os.path.join(backend_dir, '.env')
-
+        api_key = None
         if os.path.exists(env_path):
             with open(env_path, 'r') as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith('#'):
+                    if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        key = key.strip()
-                        value = value.strip().strip('\'"')
-                        os.environ[key] = value
+                        api_key = value.strip().strip('\'"')
+                        break
 
-        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
             raise ValueError("GEMINI_API_KEY not found or not set in .env file.")
         
