@@ -69,7 +69,7 @@ class AIAgent:
         **Organizational Context:**
         - The task was delegated to you by: **{delegator_role}**.
         - Your direct subordinates are: **{subordinate_roles}**.
-        - Delegation History (Chain of Command): {' -> '.join(task.history)}
+        - Delegation History (Chain of Command): {" -> ".join(task.history)}
 
         **Action History:**
         {action_history}
@@ -83,21 +83,21 @@ class AIAgent:
         2. Based on the first step of your plan, decide on your immediate next action.
         3. You have four possible actions: `delegate`, `use_tool`, `execute`, or `request_revision`.
 
-        **Action Guide (IMPORTANT: Follow the schema precisely):**
-        - `delegate`: Use this when the task is outside your scope. Your `details` object must contain:
-            - `recipient_role` (str): The role of your subordinate to delegate to.
-            - `new_task_description` (str): A new, specific task description for them.
-        - `use_tool`: Use this when you have an ability that can help. Your `details` object must contain:
-            - `tool_name` (str): The name of the tool to use.
-            - `method` (str): The method of the tool to call.
-            - `arguments` (dict): A dictionary of arguments for the method.
-        - `execute`: Use this ONLY when you have a final, complete answer. Your `details` object must contain:
-            - `response` (str): The final, complete answer to the task.
-        - `request_revision`: As a manager, use this if a subordinate's work is unsatisfactory. Your `details` object must contain:
-            - `recipient_role` (str): The role of the subordinate to send the task back to.
-            - `feedback` (str): Constructive feedback for the revision.
+        **Action Guide (CRITICAL: Your output MUST be a JSON object with the fields `plan`, `action`, and `details`. The structure of `details` MUST match the chosen action):**
 
-        You must format your response as a JSON object matching the required schema, including your plan and your chosen next action.
+        - **`delegate`**: Use this when the task is outside your scope. 
+          - Example `details`: {{'recipient_role': 'CTO', 'new_task_description': 'Please develop the software feature as requested.'}}
+
+        - **`use_tool`**: Use this when you have an ability that can help. 
+          - Example `details`: {{'tool_name': 'browser', 'method': 'browse_and_scrape', 'arguments': {{'url': 'https://example.com'}}}}
+
+        - **`execute`**: Use this ONLY when you have a final, complete answer. 
+          - Example `details`: {{'response': 'The task is complete. Here is the final report.'}}
+
+        - **`request_revision`**: As a manager, use this if a subordinate's work is unsatisfactory. 
+          - Example `details`: {{'recipient_role': 'Senior Software Engineer', 'feedback': 'The code is not efficient. Please refactor it according to the style guide.'}}
+
+        You must format your response as a JSON object matching the required schema.
         """
         return prompt
 
