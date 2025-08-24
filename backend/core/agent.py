@@ -9,6 +9,7 @@ from .knowledge import KnowledgeBase
 from .task import Task
 from .tools import browser_tool, code_executor_tool, file_system_tool
 from .text_to_image_tool import text_to_image
+from .image_to_video_tool import image_to_video
 
 
 
@@ -43,6 +44,7 @@ class AIAgent:
                 "code_executor": code_executor_tool,
                 "file_system": file_system_tool,
                 "text_to_image": text_to_image,
+                "image_to_video": image_to_video,
             }
         self.tools = all_tools
         
