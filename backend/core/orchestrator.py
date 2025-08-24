@@ -3,12 +3,14 @@ from .agent import AIAgent
 from .task import Task
 from .persona import Persona
 from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
+from sentence_transformers import SentenceTransformer, util
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
     def __init__(self, structure: Dict[str, Dict]):
         self.agents: Dict[str, AIAgent] = {}
         self.hierarchy: Dict[str, List[str]] = {}
+        self.similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
 
         # Load all available tools
         self.tool_forge = tool_forge
@@ -128,11 +130,8 @@ class Organization:
 
     def _calculate_similarity(self, text1: str, text2: list[str]) -> float:
         """Calculates the similarity between a text and a list of texts."""
-        from sentence_transformers import util
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        embedding1 = model.encode(text1, convert_to_tensor=True)
-        embedding2 = model.encode(text2, convert_to_tensor=True)
+        embedding1 = self.similarity_model.encode(text1, convert_to_tensor=True)
+        embedding2 = self.similarity_model.encode(text2, convert_to_tensor=True)
         
         cosine_scores = util.pytorch_cos_sim(embedding1, embedding2)
         
