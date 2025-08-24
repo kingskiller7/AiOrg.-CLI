@@ -123,7 +123,7 @@ class AIAgent:
           ]
         }}
         ```
-        """)
+        """
         return prompt
 
     def execute_task(self, task: Task, delegator=None) -> AgentAction:
