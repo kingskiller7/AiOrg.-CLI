@@ -1,6 +1,7 @@
 from typing import Dict, List
 from .agent import AIAgent
 from .task import Task
+from .persona import Persona
 from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
 
 class Organization:
