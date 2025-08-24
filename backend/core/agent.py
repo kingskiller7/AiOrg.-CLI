@@ -125,11 +125,20 @@ class AIAgent:
                 print(f"  Step {i}: {step}")
 
         if response.action == 'execute':
-            self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
-            print(f"[{self.persona.role}] has executed the task.")
+            if isinstance(response.details, FinalAnswer):
+                self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
+                print(f"[{self.persona.role}] has executed the task.")
+            else:
+                print(f"[{self.persona.role}] has taken an invalid action. Expected FinalAnswer, got {type(response.details)}")
         elif response.action == 'delegate':
-            print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient_role}].")
+            if isinstance(response.details, Delegation):
+                print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient_role}].")
+            else:
+                print(f"[{self.persona.role}] has taken an invalid action. Expected Delegation, got {type(response.details)}")
         elif response.action == 'use_tool':
-            print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
+            if isinstance(response.details, UseTool):
+                print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
+            else:
+                print(f"[{self.persona.role}] has taken an invalid action. Expected UseTool, got {type(response.details)}")
         
         return response
