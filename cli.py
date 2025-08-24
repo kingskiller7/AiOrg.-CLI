@@ -4,20 +4,6 @@ from backend.core.persona import Persona
 from backend.core.task import Task
 from backend.core.orchestrator import Organization
 
-# Manually load the .env file from the backend directory
-backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))
-env_path = os.path.join(backend_dir, '.env')
-
-if os.path.exists(env_path):
-    with open(env_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith('#'):
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip().strip('"')
-                os.environ[key] = value
-
 def define_organization_structure() -> dict:
     """Defines the agents, personas, and hierarchy of the organization."""
     

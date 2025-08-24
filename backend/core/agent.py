@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field
 from typing import List, Dict
@@ -38,8 +37,21 @@ class AIAgent:
         self.knowledge = KnowledgeBase(agent_role=persona.role)
         self.tools = all_tools if all_tools is not None else {}
         
+        # Manually load the .env file from the backend directory
+        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        env_path = os.path.join(backend_dir, '.env')
+
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        key, value = line.split('=', 1)
+                        key = key.strip()
+                        value = value.strip().strip('\'"')
+                        os.environ[key] = value
+
         api_key = os.getenv("GEMINI_API_KEY")
-        print(f"GEMINI_API_KEY: {api_key}")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
             raise ValueError("GEMINI_API_KEY not found or not set in .env file.")
         
