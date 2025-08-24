@@ -134,31 +134,47 @@ class AIAgent:
 
         prompt = self._create_prompt(task, delegator_role)
 
-        print(f"[{self.persona.role}] is thinking...")
-        response = self.llm.invoke(prompt)
+        for i in range(3): # Retry loop
+            try:
+                print(f"[{self.persona.role}] is thinking... (Attempt {i+1})")
+                response = self.llm.invoke(prompt)
 
-        # Print the agent's plan
-        if response.plan:
-            print(f"[{self.persona.role}] has formulated a plan:")
-            for i, step in enumerate(response.plan, 1):
-                print(f"  Step {i}: {step}")
+                # Print the agent's plan
+                if response.plan:
+                    print(f"[{self.persona.role}] has formulated a plan:")
+                    for i, step in enumerate(response.plan, 1):
+                        print(f"  Step {i}: {step}")
 
-        action_name = response.details.action
-        if action_name == 'execute':
-            if isinstance(response.details, FinalAnswer):
-                self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
-                print(f"[{self.persona.role}] has executed the task.")
-            else:
-                print(f"[{self.persona.role}] has taken an invalid action. Expected FinalAnswer, got {type(response.details)}")
-        elif action_name == 'delegate':
-            if isinstance(response.details, Delegation):
-                print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient}].")
-            else:
-                print(f"[{self.persona.role}] has taken an invalid action. Expected Delegation, got {type(response.details)}")
-        elif action_name == 'use_tool':
-            if isinstance(response.details, UseTool):
-                print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
-            else:
-                print(f"[{self.persona.role}] has taken an invalid action. Expected UseTool, got {type(response.details)}")
-        
-        return response
+                action_name = response.details.action
+                if action_name == 'execute':
+                    if isinstance(response.details, FinalAnswer):
+                        self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
+                        print(f"[{self.persona.role}] has executed the task.")
+                    else:
+                        # This case should ideally not be hit due to discriminated union, but as a fallback:
+                        raise ValueError(f"Invalid details for 'execute' action: {response.details}")
+                elif action_name == 'delegate':
+                    if isinstance(response.details, Delegation):
+                        print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient}].")
+                    else:
+                        raise ValueError(f"Invalid details for 'delegate' action: {response.details}")
+                elif action_name == 'use_tool':
+                    if isinstance(response.details, UseTool):
+                        print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
+                    else:
+                        raise ValueError(f"Invalid details for 'use_tool' action: {response.details}")
+                
+                return response # Success, exit the loop
+
+            except Exception as e:
+                print(f"[{self.persona.role}] encountered an error on attempt {i+1}: {e}")
+                error_feedback = f"Your previous attempt failed with an error: {e}. Please review the required JSON schema and your plan, then try again. Ensure your entire response is a single, valid JSON object with 'plan' and 'details' keys."
+                prompt = self._create_prompt(task, delegator_role) + f"\n\n**IMPORTANT CORRECTION:**\n{error_feedback}"
+                task.action_history.append(f"Attempt {i+1} failed with error: {e}")
+
+        # If all retries fail, return a final error action
+        print(f"[{self.persona.role}] failed to generate a valid action after multiple attempts.")
+        return AgentAction(
+            plan=["Failed to generate a valid action after multiple attempts."],
+            details=FinalAnswer(action="execute", response="Error: I was unable to formulate a valid action to complete the task after multiple retries.")
+        )
