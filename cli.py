@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 
 # Manually load the .env file from the backend directory
 backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))
@@ -13,17 +12,13 @@ if os.path.exists(env_path):
             if line and not line.startswith('#'):
                 key, value = line.split('=', 1)
                 key = key.strip()
-                value = value.strip()
-                # Remove surrounding quotes from the value
-                value = re.sub(r'^["“”](.*)["“”]
+                value = value.strip().strip('"')
+                os.environ[key] = value
 
-def define_organization_structure() -> dict:
-    """Defines the agents, personas, and hierarchy of the organization."""
-    
-    structure = {
-        # 1. Top Management
-        "CEO": {
-            "persona": Persona(role="CEO", responsibilities=["Setting the company's long-term vision and strategy", "Making major corporate and financial decisions", "Managing the overall operations and resources", "Acting as the main point of communication between the board of directors and the organization"]),
+from backend.core.persona import Persona
+from backend.core.task import Task
+from backend.core.orchestrator import Organization
+ng as the main point of communication between the board of directors and the organization"]),
             "subordinates": ["COO", "CFO", "CTO", "CIO", "CHRO", "CMO", "CSO"]
         },
 
