@@ -1,6 +1,7 @@
 import lancedb
 from sentence_transformers import SentenceTransformer
 import os
+import re
 
 from .config import MEMORY_DIR
 
@@ -14,7 +15,10 @@ class KnowledgeBase:
             os.makedirs(db_path)
             
         db = lancedb.connect(db_path)
-        table_name = self.agent_role.lower().replace(' ', '_')
+        
+        # Sanitize the agent role to create a valid table name
+        sanitized_role = re.sub(r'[^a-zA-Z0-9_-]', '', agent_role.lower().replace(' ', '_'))
+        table_name = sanitized_role
         
         try:
             self.table = db.open_table(table_name)
