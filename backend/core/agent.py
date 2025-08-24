@@ -9,7 +9,7 @@ from .knowledge import KnowledgeBase
 from .task import Task
 from .tools import browser_tool, code_executor_tool, file_system_tool
 
-load_dotenv()
+
 
 # --- Pydantic models for structured LLM output ---
 class Delegation(BaseModel):
