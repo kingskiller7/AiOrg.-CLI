@@ -1,5 +1,10 @@
-import argparse
+import sys
 import os
+import argparse
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
 from backend.core.persona import Persona
 from backend.core.task import Task
 from backend.core.orchestrator import Organization
@@ -155,9 +160,9 @@ def main(task_description: str):
     # 3. Kick off the work
     result = organization.kickoff(task)
 
-    print("\n########################")
+    print("\\n########################")
     print("## Work Complete")
-    print("########################\n")
+    print("########################\\n")
     print("Final Result:")
     print(result)
 
