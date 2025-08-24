@@ -1,50 +1,146 @@
 # AI Organization
 
-This project creates a hierarchical crew of AI agents to accomplish tasks. It features a Python backend using FastAPI and CrewAI, and a modern web interface built with Next.js.
+This project implements a hierarchical crew of AI agents designed to accomplish complex tasks. The system is built with a Python backend using FastAPI and CrewAI, and a modern web interface developed with Next.js. This allows for a powerful and flexible way to automate and delegate complex workflows.
 
-## Quick Start
+## Features
 
-This project includes scripts to automate the setup and execution process.
+*   **Hierarchical AI Agent System:** A virtual company of AI agents with a full C-suite, management, and specialized employees.
+*   **Intelligent Task Delegation:** Tasks are assigned to the CEO and then intelligently delegated down the chain of command to the most suitable agent.
+*   **Extensible Agent Personas:** Easily define and customize the roles, responsibilities, and abilities of each AI agent.
+*   **Dual Interface:** Interact with the AI organization through a user-friendly web interface or a powerful command-line interface (CLI).
+*   **File Upload and Processing:** The web interface supports file uploads, allowing you to provide files as context for your tasks.
+*   **RESTful API:** A FastAPI backend provides a well-documented API for easy integration with other services.
 
-### Prerequisites
+## Technology Stack
 
-- Python 3.8+
-- Node.js and pnpm
+*   **Backend:**
+    *   Python
+    *   FastAPI
+    *   CrewAI
+    *   LangChain
+    *   Google Gemini
+    *   Pydantic
+*   **Frontend:**
+    *   Next.js
+    *   React
+    *   TypeScript
+    *   Tailwind CSS
+*   **Tooling:**
+    *   pnpm
+    *   Ruff (linter)
+    *   Playwright (for browser automation capabilities)
 
-### 1. Add API Key
+## Project Structure
 
-Before you begin, you must add your Google Gemini API key to the environment file:
-
-1.  Open the file at `backend/.env`.
-2.  Replace `YOUR_API_KEY_HERE` with your actual key.
-
-### 2. Install Dependencies
-
-Run the installation script from the project root directory. This will install all required Python and Node.js packages.
-
-```bash
-./install.sh
+```
+AiOrg.-CLI/
+├── backend/
+│   ├── core/
+│   │   ├── agent.py
+│   │   ├── orchestrator.py
+│   │   ├── persona.py
+│   │   └── task.py
+│   ├── main.py
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   └── app/
+│   │       ├── page.tsx
+│   │       └── layout.tsx
+│   ├── package.json
+│   └── ...
+├── cli.py
+├── README.md
+└── ...
 ```
 
-### 3. Run the Application
+## Prerequisites
 
-Once the installation is complete, you can start the application with a single command:
+Before you begin, ensure you have the following installed:
 
-```bash
-./start.sh
-```
+*   Python 3.8+
+*   Node.js (which includes npm)
+*   pnpm (you can install it with `npm install -g pnpm`)
 
-This will:
-- Start the backend API server on `http://127.0.0.1:8000`.
-- Start the frontend web interface on `http://localhost:3000`.
+## Installation
 
-You can now open `http://localhost:3000` in your web browser to use the application.
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/kingskiller7/AiOrg.-CLI.git
+    cd AiOrg.-CLI
+    ```
 
----
+2.  **Install backend dependencies:**
+    *   Create a virtual environment:
+        ```bash
+        python3 -m venv backend/venv
+        ```
+    *   Activate the virtual environment:
+        ```bash
+        source backend/venv/bin/activate
+        ```
+    *   Install the required packages:
+        ```bash
+        pip install -r backend/requirements.txt
+        ```
 
-### Manual CLI Usage
+3.  **Install frontend dependencies:**
+    ```bash
+    cd frontend
+    pnpm install
+    cd ..
+    ```
 
-If you wish to use the command-line interface directly (after running the `./install.sh` script):
+## Configuration
 
-1.  Activate the Python virtual environment: `source backend/venv/bin/activate`
-2.  Run the CLI script with a task: `python cli.py "Your task description here"`
+Before running the application, you must add your Google Gemini API key to the `backend/.env` file.
+
+1.  Create a `.env` file in the `backend` directory:
+    ```bash
+    touch backend/.env
+    ```
+2.  Add your API key to the file:
+    ```
+    GOOGLE_API_KEY="YOUR_API_KEY_HERE"
+    ```
+
+## Usage
+
+### Running the Web Application
+
+1.  **Start the backend server:**
+    *   Activate the virtual environment:
+        ```bash
+        source backend/venv/bin/activate
+        ```
+    *   Start the FastAPI server:
+        ```bash
+        uvicorn backend.main:app --reload
+        ```
+    The backend will be running at `http://1227.0.0.1:8000`.
+
+2.  **Start the frontend server:**
+    *   In a new terminal, navigate to the `frontend` directory:
+        ```bash
+        cd frontend
+        ```
+    *   Start the Next.js development server:
+        ```bash
+        pnpm run dev
+        ```
+    The frontend will be accessible at `http://localhost:3000`.
+
+### Using the Command-Line Interface (CLI)
+
+1.  **Activate the virtual environment:**
+    ```bash
+    source backend/venv/bin/activate
+    ```
+2.  **Run the CLI with your task:**
+    ```bash
+    python cli.py "Your task description here"
+    ```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
