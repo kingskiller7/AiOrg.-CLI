@@ -39,6 +39,7 @@ class AIAgent:
         self.tools = all_tools if all_tools is not None else {}
         
         api_key = os.getenv("GEMINI_API_KEY")
+        print(f"GEMINI_API_KEY: {api_key}")
         if not api_key or api_key == "YOUR_API_KEY_HERE":
             raise ValueError("GEMINI_API_KEY not found or not set in .env file.")
         
