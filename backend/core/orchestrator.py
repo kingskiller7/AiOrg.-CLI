@@ -37,7 +37,7 @@ class Organization:
             verbose=True,
             temperature=0,
             google_api_key=api_key,
-        ).with_structured_output(AgentAction)
+        )
 
         # Load all available tools
         self.tool_forge = tool_forge

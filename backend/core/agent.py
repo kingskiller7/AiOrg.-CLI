@@ -1,8 +1,9 @@
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from typing import List, Dict, Union, Literal
 import json
+import re
 
 from .persona import Persona
 from .knowledge import KnowledgeBase
@@ -48,6 +49,15 @@ class AIAgent:
 
     def __repr__(self):
         return f"AIAgent(role={self.persona.role})"
+
+    def _clean_json_output(self, raw_output: str) -> str:
+        """Cleans the raw string output from the LLM to extract a valid JSON object."""
+        # Use regex to find the JSON block within markdown fences
+        match = re.search(r"```json\n(.*?)\n```", raw_output, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        # Fallback for cases where the fences are missing
+        return raw_output.strip()
 
     def _create_prompt(self, task: Task, delegator_role: str) -> str:
         subordinate_roles = ", ".join(self.organization.get_subordinates(self.persona.role)) or "None"
@@ -135,9 +145,12 @@ class AIAgent:
         for i in range(3): # Retry loop
             try:
                 print(f"[{self.persona.role}] is thinking... (Attempt {i+1})")
-                response = self.llm.invoke(prompt)
+                raw_response = self.llm.invoke(prompt).content
+                clean_response = self._clean_json_output(raw_response)
+                response_dict = json.loads(clean_response)
+                response = AgentAction.model_validate(response_dict)
 
-                # Print the agent's plan
+                # If parsing and validation succeed, log and return.
                 if response.plan:
                     print(f"[{self.persona.role}] has formulated a plan:")
                     for i, step in enumerate(response.plan, 1):
@@ -145,30 +158,25 @@ class AIAgent:
 
                 action_name = response.details.action
                 if action_name == 'execute':
-                    if isinstance(response.details, FinalAnswer):
-                        self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
-                        print(f"[{self.persona.role}] has executed the task.")
-                    else:
-                        # This case should ideally not be hit due to discriminated union, but as a fallback:
-                        raise ValueError(f"Invalid details for 'execute' action: {response.details}")
+                    print(f"[{self.persona.role}] has executed the task.")
                 elif action_name == 'delegate':
-                    if isinstance(response.details, Delegation):
-                        print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient}].")
-                    else:
-                        raise ValueError(f"Invalid details for 'delegate' action: {response.details}")
+                    print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient}].")
                 elif action_name == 'use_tool':
-                    if isinstance(response.details, UseTool):
-                        print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
-                    else:
-                        raise ValueError(f"Invalid details for 'use_tool' action: {response.details}")
+                    print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
                 
                 return response # Success, exit the loop
 
-            except Exception as e:
-                print(f"[{self.persona.role}] encountered an error on attempt {i+1}: {e}")
-                error_feedback = f"Your previous attempt failed with an error: {e}. Please review the required JSON schema and your plan, then try again. Ensure your entire response is a single, valid JSON object with 'plan' and 'details' keys."
+            except (json.JSONDecodeError, ValidationError) as e:
+                print(f"[{self.persona.role}] encountered a parsing/validation error on attempt {i+1}: {e}")
+                error_feedback = f"Your previous attempt failed with an error: {e}. Please review the required JSON schema and your plan, then try again. Ensure your entire response is a single, valid JSON object with 'plan' and 'details' keys, and that the `details` object has the correct `action` field and structure."
                 prompt = self._create_prompt(task, delegator_role) + f"\n\n**IMPORTANT CORRECTION:**\n{error_feedback}"
-                task.action_history.append(f"Attempt {i+1} failed with error: {e}")
+                task.action_history.append(f"Attempt {i+1} failed with parsing/validation error: {e}")
+            except Exception as e:
+                print(f"[{self.persona.role}] encountered an unexpected error on attempt {i+1}: {e}")
+                # For unexpected errors, use a more generic correction prompt
+                error_feedback = f"Your previous attempt failed with an unexpected error: {e}. Please try again, adhering strictly to the output format."
+                prompt = self._create_prompt(task, delegator_role) + f"\n\n**IMPORTANT CORRECTION:**\n{error_feedback}"
+                task.action_history.append(f"Attempt {i+1} failed with unexpected error: {e}")
 
         # If all retries fail, return a final error action
         print(f"[{self.persona.role}] failed to generate a valid action after multiple attempts.")
