@@ -33,7 +33,7 @@ class Organization:
         
         # Create a single, shared LLM instance
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-1.5-pro",
             verbose=True,
             temperature=0,
             google_api_key=api_key,
