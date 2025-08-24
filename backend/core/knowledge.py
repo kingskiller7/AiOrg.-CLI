@@ -18,13 +18,10 @@ class KnowledgeBase:
         
         try:
             self.table = db.open_table(table_name)
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             # Table does not exist, create it
-            schema = {
-                "vector": self.model.encode("").tolist(),
-                "text": ""
-            }
-            self.table = db.create_table(table_name, schema=schema)
+            schema = self.model.encode("").tolist()
+            self.table = db.create_table(table_name, data=[{"vector": schema, "text": ""}])
 
     def add(self, info: str):
         """Adds a new piece of information to the knowledge base."""
