@@ -2,14 +2,23 @@
 
 This project implements a hierarchical organization of AI agents designed to accomplish complex tasks. The system is built with a Python backend using FastAPI, and a modern web interface developed with Next.js. This allows for a powerful and flexible way to automate and delegate complex workflows.
 
-## Features
+## Key Features
 
 *   **Hierarchical AI Agent System:** A virtual company of AI agents with a full C-suite, management, and specialized employees.
-*   **Intelligent Task Delegation:** Tasks are assigned to the CEO and then intelligently delegated down the chain of command to the most suitable agent.
-*   **Extensible Agent Personas:** Easily define and customize the roles, responsibilities, and abilities of each AI agent.
+*   **Strategic Task Routing:** Instead of simple delegation, the system uses a strategic controller to analyze incoming tasks and route them to the correct department head (e.g., CTO, CMO), ensuring tasks are handled by the right team from the start.
+*   **Managerial Feedback Loop:** Managers can review the work of their subordinates and, if it's unsatisfactory, send it back down with specific feedback for revision. This creates a realistic and iterative workflow.
+*   **Dynamic Role Evolution:** Agents that lack the necessary tools to perform their duties can automatically request new abilities from leadership, creating a self-improving and adaptable organization.
+*   **Extensible Agent Personas:** Easily define and customize the roles, responsibilities, and starting abilities of each AI agent.
+*   **Deterministic & Efficient Core:** The underlying agent architecture has been refactored to be deterministic (temperature=0) and highly efficient (using a single, shared language model).
 *   **Dual Interface:** Interact with the AI organization through a user-friendly web interface or a powerful command-line interface (CLI).
-*   **File Upload and Processing:** The web interface supports file uploads, allowing you to provide files as context for your tasks.
-*   **RESTful API:** A FastAPI backend provides a well-documented API for easy integration with other services.
+
+## Advanced Workflows
+
+The orchestration engine supports several advanced, true-to-life workflows:
+
+1.  **Standard Operating Procedures:** When a task is submitted, it is first analyzed and routed to the correct department (e.g., tech tasks to the CTO). This ensures efficiency and proper oversight.
+2.  **Iterative Improvement:** A manager can review a subordinate's work and send it back with feedback using the `request_revision` action, ensuring quality control.
+3.  **Permission Requests:** If an agent tries to use a tool it doesn't have, the system guides the agent to delegate a request to the CEO to formally ask for that new ability.
 
 ## Technology Stack
 
@@ -116,7 +125,7 @@ Before running the application, you must add your Google Gemini API key to the `
         ```bash
         uvicorn backend.main:app --reload
         ```
-    The backend will be running at `http://1227.0.0.1:8000`.
+    The backend will be running at `http://127.0.0.1:8000`.
 
 2.  **Start the frontend server:**
     *   In a new terminal, navigate to the `frontend` directory:
