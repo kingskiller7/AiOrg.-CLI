@@ -87,7 +87,8 @@ class Organization:
                         description=f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is below. Please review and decide the next action. Original goal: '{task.description}'\n\nSUBORDINATE'S REPORT:\n---\n{final_response}",
                         expected_output=task.expected_output,
                         assigned_to=manager_role,
-                        history=task.history
+                        history=task.history,
+                        action_history=task.action_history
                     )
                     current_agent = self.agents.get(manager_role)
                 else:
@@ -105,6 +106,20 @@ class Organization:
                     current_agent = next_agent
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to delegate but provided invalid details."
+
+            elif action_result.action == 'request_revision':
+                if isinstance(action_result.details, RequestRevision):
+                    recipient_role = action_result.details.recipient_role
+                    next_agent = self.agents.get(recipient_role)
+                    
+                    if not next_agent:
+                        return f"Error: Agent {current_agent.persona.role} tried to request a revision from a non-existent role {recipient_role}."
+                    
+                    task.description = f"Your manager, {current_agent.persona.role}, has reviewed your work and requested revisions. Please address the following feedback and provide a new, complete response.\n\nMANAGER'S FEEDBACK:\n---\n{action_result.details.feedback}\n\nORIGINAL TASK:\n---\n{task.description}"
+                    task.action_history.append(f"Manager {current_agent.persona.role} requested revision with feedback: {action_result.details.feedback}")
+                    current_agent = next_agent
+                else:
+                    return f"Error: Agent {current_agent.persona.role} tried to request a revision but provided invalid details."
 
             elif action_result.action == 'use_tool':
                 if isinstance(action_result.details, UseTool):
@@ -129,7 +144,8 @@ class Organization:
                     except TypeError as e:
                         return f"Error: Invalid arguments for {tool_name}.{method_name}: {e}"
 
-                    task.description = f"You just used the {tool_name} tool by calling the '{method_name}' method. The result was: \n\n{tool_result}\n\nNow, using this new information, complete your original task: {task.description}"
+                    tool_output_string = f"The {tool_name} tool was used by calling '{method_name}'. The result was: {tool_result}"
+                    task.action_history.append(tool_output_string)
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to use a tool but provided invalid details."
             else:

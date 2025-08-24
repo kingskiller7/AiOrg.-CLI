@@ -28,10 +28,14 @@ class UseTool(BaseModel):
 class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
 
+class RequestRevision(BaseModel):
+    recipient_role: str = Field(description="The role of the subordinate to whom the task is being sent back for revision.")
+    feedback: str = Field(description="Constructive feedback and explicit instructions for what needs to be revised.")
+
 class AgentAction(BaseModel):
     plan: List[str] = Field(description="A step-by-step plan of what the agent intends to do.")
-    action: str = Field(description="Either 'delegate', 'use_tool', or 'execute'.")
-    details: Delegation | UseTool | FinalAnswer
+    action: str = Field(description="Either 'delegate', 'use_tool', 'execute', or 'request_revision'.")
+    details: Delegation | UseTool | FinalAnswer | RequestRevision
 
 class AIAgent:
     """Represents a custom AI agent that can execute, delegate, or use tools."""
@@ -72,6 +76,7 @@ class AIAgent:
         available_abilities = ", ".join(self.persona.abilities) or "None"
         
         relevant_experience = self.knowledge.query(task.description)
+        action_history = "\n".join(f"- {item}" for item in task.action_history) or "No actions taken yet."
 
         prompt = f"""
         You are an AI agent, **{self.persona.role}**, within a larger organization.
@@ -86,7 +91,10 @@ class AIAgent:
         **Organizational Context:**
         - The task was delegated to you by: **{delegator_role}**.
         - Your direct subordinates are: **{subordinate_roles}**.
-        - Task History (Chain of Command): {' -> '.join(task.history)}
+        - Delegation History (Chain of Command): {' -> '.join(task.history)}
+
+        **Action History:**
+        {action_history}
 
         **Your Task:**
         - Description: {task.description}
@@ -95,7 +103,13 @@ class AIAgent:
         **Your Decision Process:**
         1. First, think step-by-step. Formulate a plan to address the task.
         2. Based on the first step of your plan, decide on your immediate next action.
-        3. You have three possible actions: `delegate`, `use_tool`, or `execute`.
+        3. You have four possible actions: `delegate`, `use_tool`, `execute`, or `request_revision`.
+
+        **Action Guide:**
+        - `delegate`: Use this when the task is outside your scope and should be handled by one of your subordinates.
+        - `use_tool`: Use this when you have an ability that can help you accomplish the task.
+        - `execute`: Use this ONLY when you have a final, complete answer to the task.
+        - `request_revision`: As a manager, use this if a subordinate has completed a task, but their work is unsatisfactory. Provide clear feedback and send it back to them.
 
         **Tool Usage Guide:**
         - To create a new, permanent ability, use the 'tool_forge' tool with the 'create_tool' method. You must provide a unique 'tool_name', a clear 'description', and the complete Python 'code' for the new tool.

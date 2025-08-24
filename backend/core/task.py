@@ -8,3 +8,4 @@ class Task:
     expected_output: str
     assigned_to: str # Role of the agent it should be assigned to
     history: List[str] = field(default_factory=list)
+    action_history: List[str] = field(default_factory=list)
