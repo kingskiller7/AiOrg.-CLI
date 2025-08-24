@@ -100,6 +100,10 @@ class Organization:
     def kickoff(self, task: Task, max_delegations: int = 10) -> str:
         print("--- Organization Task Kickoff ---")
         
+        # Set the original description if it's not already set
+        if task.original_description is None:
+            task.original_description = task.description
+
         # Determine the initial agent based on the strategic workflow
         initial_agent_role = self._determine_workflow(task.description)
         current_agent = self.agents.get(initial_agent_role)
@@ -118,14 +122,10 @@ class Organization:
                         print("--- Organization Task Complete (CEO Finalized) ---")
                         return final_response
                     
-                    print(f"[{current_agent.persona.role}] is reporting results to manager [{manager_role}].")
-                    task = Task(
-                        description=f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is below. Please review and decide the next action. Original goal: '{task.description}'\n\nSUBORDINATE'S REPORT:\n---\n{final_response}",
-                        expected_output=task.expected_output,
-                        assigned_to=manager_role,
-                        history=task.history,
-                        action_history=task.action_history
-                    )
+                    # Append the report to the history and create a clean task for the manager
+                    task.action_history.append(f"SUBORDINATE'S REPORT from {current_agent.persona.role}:\n---\n{final_response}")
+                    task.description = f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is in the action history. Please review and decide the next action."
+                    task.assigned_to = manager_role
                     current_agent = self.agents.get(manager_role)
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to execute but provided invalid details."
@@ -139,6 +139,7 @@ class Organization:
                         return f"Error: Agent {current_agent.persona.role} tried to delegate to non-existent role {recipient_role}."
                     
                     task.description = action_details.task_description
+                    task.assigned_to = recipient_role
                     current_agent = next_agent
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to delegate but provided invalid details."
@@ -151,8 +152,10 @@ class Organization:
                     if not next_agent:
                         return f"Error: Agent {current_agent.persona.role} tried to request a revision from a non-existent role {recipient_role}."
                     
-                    task.description = f"Your manager, {current_agent.persona.role}, has reviewed your work and requested revisions. Please address the following feedback and provide a new, complete response.\n\nMANAGER'S FEEDBACK:\n---\n{action_details.revision_feedback}\n\nORIGINAL TASK:\n---\n{task.description}"
-                    task.action_history.append(f"Manager {current_agent.persona.role} requested revision with feedback: {action_details.revision_feedback}")
+                    # Append feedback to history and create a clean task for the subordinate
+                    task.action_history.append(f"MANAGER'S FEEDBACK from {current_agent.persona.role}:\n---\n{action_details.revision_feedback}")
+                    task.description = f"Your manager, {current_agent.persona.role}, has requested revisions for your work on the task: '{task.original_description}'. See the action history for their feedback and provide a new, complete response."
+                    task.assigned_to = recipient_role
                     current_agent = next_agent
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to request a revision but provided invalid details."
@@ -166,7 +169,7 @@ class Organization:
                     # Enforce agent abilities
                     if tool_name not in current_agent.persona.abilities:
                         rejection_reason = f"Attempt to use tool '{tool_name}' failed. It is not in your list of abilities."
-                        task.description = f"Your attempt to use the '{tool_name}' tool failed because it is not in your list of abilities. You must formally request this ability from the CEO. Formulate a new task for the CEO explaining your role, the ability you need, and why you need it for your original task. Then, use the 'delegate' action to send this request to the CEO.\n\nOriginal Task: {task.description}"
+                        task.description = f"Your attempt to use the '{tool_name}' tool failed because it is not in your list of abilities. You must formally request this ability from the CEO. Formulate a new task for the CEO explaining your role, the ability you need, and why you need it for your original task: '{task.original_description}'. Then, use the 'delegate' action to send this request to the CEO."
                         task.action_history.append(rejection_reason)
                         continue # End this turn and let the agent formulate the request
 
