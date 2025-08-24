@@ -8,6 +8,7 @@ from .persona import Persona
 from .knowledge import KnowledgeBase
 from .task import Task
 from .tools import browser_tool, code_executor_tool, file_system_tool
+from .text_to_image_tool import text_to_image
 
 
 
@@ -35,7 +36,15 @@ class AIAgent:
         self.persona = persona
         self.organization = organization
         self.knowledge = KnowledgeBase(agent_role=persona.role)
-        self.tools = all_tools if all_tools is not None else {}
+        
+        if all_tools is None:
+            all_tools = {
+                "browser": browser_tool,
+                "code_executor": code_executor_tool,
+                "file_system": file_system_tool,
+                "text_to_image": text_to_image,
+            }
+        self.tools = all_tools
         
         # Manually load the .env file from the backend directory
         backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -47,7 +56,7 @@ class AIAgent:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip('\'"')
+                        api_key = value.strip().strip("'"")
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":
