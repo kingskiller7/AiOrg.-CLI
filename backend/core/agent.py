@@ -11,6 +11,7 @@ from .tools import browser_tool, code_executor_tool, file_system_tool
 from .text_to_image_tool import text_to_image
 from .image_to_video_tool import image_to_video
 from .text_to_speech_tool import text_to_speech
+from .text_to_video_tool import text_to_video
 
 
 
@@ -22,7 +23,7 @@ class Delegation(BaseModel):
 class UseTool(BaseModel):
     tool_name: str = Field(description="The name of the tool to use, e.g., 'browser' or 'code_executor'.")
     method: str = Field(description="The method of the tool to call, e.g., 'browse_and_scrape' or 'write_code'.")
-    arguments: Dict[str, str] = Field(description=("""The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print("Hello")'}."""))
+    arguments: Dict[str, str] = Field(description=("""The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print(\"Hello\")'}.""" ))
 
 class FinalAnswer(BaseModel):
     response: str = Field(description="The final, complete answer to the task.")
@@ -47,6 +48,7 @@ class AIAgent:
                 "text_to_image": text_to_image,
                 "image_to_video": image_to_video,
                 "text_to_speech": text_to_speech,
+                "text_to_video": text_to_video,
             }
         self.tools = all_tools
         
@@ -60,7 +62,7 @@ class AIAgent:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'"')
+                        api_key = value.strip().strip("'\"")
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":
