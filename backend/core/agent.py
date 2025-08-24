@@ -10,6 +10,7 @@ from .task import Task
 from .tools import browser_tool, code_executor_tool, file_system_tool
 from .text_to_image_tool import text_to_image
 from .image_to_video_tool import image_to_video
+from .text_to_speech_tool import text_to_speech
 
 
 
@@ -45,6 +46,7 @@ class AIAgent:
                 "file_system": file_system_tool,
                 "text_to_image": text_to_image,
                 "image_to_video": image_to_video,
+                "text_to_speech": text_to_speech,
             }
         self.tools = all_tools
         
@@ -58,7 +60,7 @@ class AIAgent:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'"")
+                        api_key = value.strip().strip("'"')
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":
