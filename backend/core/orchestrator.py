@@ -3,7 +3,10 @@ from typing import Dict, List
 from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import SentenceTransformer, util
 
-from .agent import AIAgent, Delegation, FinalAnswer, UseTool, RequestRevision
+from .agent import AIAgent, AgentAction, Delegation, FinalAnswer, UseTool, RequestRevision
+from .task import Task
+from .persona import Persona
+from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
 
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
@@ -34,7 +37,7 @@ class Organization:
             verbose=True,
             temperature=0,
             google_api_key=api_key,
-        ).with_structured_output(AIAgent.AgentAction)
+        ).with_structured_output(AgentAction)
 
         # Load all available tools
         self.tool_forge = tool_forge
@@ -74,6 +77,25 @@ class Organization:
             if role in subordinates:
                 return manager
         return None
+
+    def _determine_workflow(self, task_description: str) -> str:
+        """Determines the primary department for a task based on keywords."""
+        tech_keywords = ['code', 'script', 'develop', 'software', 'technical', 'database', 'server', 'bug']
+        marketing_keywords = ['marketing', 'campaign', 'brand', 'advertising', 'social media', 'seo']
+        security_keywords = ['security', 'vulnerability', 'penetration test', 'firewall', 'malware']
+        finance_keywords = ['financial', 'budget', 'forecast', 'revenue', 'expense']
+
+        description = task_description.lower()
+        if any(keyword in description for keyword in tech_keywords):
+            return "CTO"
+        if any(keyword in description for keyword in marketing_keywords):
+            return "CMO"
+        if any(keyword in description for keyword in security_keywords):
+            return "CSO"
+        if any(keyword in description for keyword in finance_keywords):
+            return "CFO"
+        
+        return "CEO" # Default to CEO if no specific department is identified
 
     def kickoff(self, task: Task, max_delegations: int = 10) -> str:
         print("--- Organization Task Kickoff ---")
@@ -172,25 +194,6 @@ class Organization:
                 return f"Error: Unknown action '{action_result.action}' decided by agent."
 
         return "Error: Maximum delegation depth reached. The task could not be completed."
-
-    def _determine_workflow(self, task_description: str) -> str:
-        """Determines the primary department for a task based on keywords."""
-        tech_keywords = ['code', 'script', 'develop', 'software', 'technical', 'database', 'server', 'bug']
-        marketing_keywords = ['marketing', 'campaign', 'brand', 'advertising', 'social media', 'seo']
-        security_keywords = ['security', 'vulnerability', 'penetration test', 'firewall', 'malware']
-        finance_keywords = ['financial', 'budget', 'forecast', 'revenue', 'expense']
-
-        description = task_description.lower()
-        if any(keyword in description for keyword in tech_keywords):
-            return "CTO"
-        if any(keyword in description for keyword in marketing_keywords):
-            return "CMO"
-        if any(keyword in description for keyword in security_keywords):
-            return "CSO"
-        if any(keyword in description for keyword in finance_keywords):
-            return "CFO"
-        
-        return "CEO" # Default to CEO if no specific department is identified
 
     def _calculate_similarity(self, text1: str, text2: list[str]) -> float:
         """Calculates the similarity between a text and a list of texts."""
