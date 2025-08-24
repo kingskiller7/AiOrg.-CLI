@@ -1,4 +1,12 @@
 import argparse
+import os
+from dotenv import load_dotenv
+
+# Get the absolute path to the backend directory
+backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))
+
+# Load the .env file from the backend directory
+load_dotenv(dotenv_path=os.path.join(backend_dir, '.env'))
 
 from backend.core.persona import Persona
 from backend.core.task import Task
