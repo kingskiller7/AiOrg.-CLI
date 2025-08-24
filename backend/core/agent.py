@@ -1,7 +1,7 @@
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List, Dict, Union, Literal
 import json
 
 from .persona import Persona
@@ -13,29 +13,31 @@ from .image_to_video_tool import image_to_video
 from .text_to_speech_tool import text_to_speech
 from .text_to_video_tool import text_to_video
 
+# --- Pydantic models for structured LLM output using a Discriminated Union ---
 
-
-# --- Pydantic models for structured LLM output ---
 class Delegation(BaseModel):
+    action: Literal["delegate"] = "delegate"
     recipient: str = Field(description="The role of the agent to delegate the task to.")
     task_description: str = Field(description="A new, specific task description for the subordinate.")
 
 class UseTool(BaseModel):
-    tool_name: str = Field(description="The name of the tool to use, e.g., 'browser' or 'code_executor'.")
-    method: str = Field(description="The method of the tool to call, e.g., 'browse_and_scrape' or 'write_code'.")
-    arguments: Dict[str, str] = Field(description=("""The arguments for the tool method, e.g., {'url': 'https://example.com'} or {'filename': 'script.py', 'code': 'print("Hello")'}...""" ))
+    action: Literal["use_tool"] = "use_tool"
+    tool_name: str = Field(description="The name of the tool to use.")
+    method: str = Field(description="The method of the tool to call.")
+    arguments: Dict[str, str] = Field(description="The arguments for the tool method.")
 
 class FinalAnswer(BaseModel):
+    action: Literal["execute"] = "execute"
     response: str = Field(description="The final, complete answer to the task.")
 
 class RequestRevision(BaseModel):
+    action: Literal["request_revision"] = "request_revision"
     subordinate_to_revise: str = Field(description="The role of the subordinate to whom the task is being sent back for revision.")
     revision_feedback: str = Field(description="Constructive feedback and explicit instructions for what needs to be revised.")
 
 class AgentAction(BaseModel):
     plan: List[str] = Field(description="A step-by-step plan of what the agent intends to do.")
-    action: str = Field(description="Either 'delegate', 'use_tool', 'execute', or 'request_revision'.")
-    details: Delegation | UseTool | FinalAnswer | RequestRevision
+    details: Union[Delegation, UseTool, FinalAnswer, RequestRevision] = Field(..., discriminator="action")
 
 class AIAgent:
     """Represents a custom AI agent that can execute, delegate, or use tools."""
@@ -80,22 +82,21 @@ class AIAgent:
 
         **Your Decision Process:**
         1. First, think step-by-step. Formulate a plan to address the task.
-        2. Based on the first step of your plan, decide on your immediate next action.
-        3. You have four possible actions: `delegate`, `use_tool`, `execute`, or `request_revision`.
+        2. Based on your plan, decide on your single next action.
 
-        **Action Guide (CRITICAL: Your output MUST be a JSON object with the fields `plan`, `action`, and `details`. The structure of `details` MUST match the chosen action):**
+        **Action Guide (CRITICAL: Your output MUST be a JSON object with `plan` and `details` fields. The `details` object MUST contain an `action` field with one of four values: ["delegate", "use_tool", "execute", "request_revision"]):
 
-        - **`delegate`**: Use this when the task is outside your scope. 
-          - Example `details`: {{'recipient': 'CTO', 'task_description': 'Please develop the software feature as requested.'}}
+        - To **`delegate`**: The `details` object must be: 
+          `{{"action": "delegate", "recipient": "<role>", "task_description": "<new task>"}}`
 
-        - **`use_tool`**: Use this when you have an ability that can help. 
-          - Example `details`: {{'tool_name': 'browser', 'method': 'browse_and_scrape', 'arguments': {{'url': 'https://example.com'}}}} 
+        - To **`use_tool`**: The `details` object must be: 
+          `{{"action": "use_tool", "tool_name": "<tool>", "method": "<method>", "arguments": {{...}} }}`
 
-        - **`execute`**: Use this ONLY when you have a final, complete answer. 
-          - Example `details`: {{'response': 'The task is complete. Here is the final report.'}}
+        - To **`execute`** (give a final answer): The `details` object must be: 
+          `{{"action": "execute", "response": "<final answer>"}}`
 
-        - **`request_revision`**: As a manager, use this if a subordinate's work is unsatisfactory. 
-          - Example `details`: {{'subordinate_to_revise': 'Senior Software Engineer', 'revision_feedback': 'The code is not efficient. Please refactor it according to the style guide.'}}
+        - To **`request_revision`** (as a manager): The `details` object must be: 
+          `{{"action": "request_revision", "subordinate_to_revise": "<role>", "revision_feedback": "<feedback>"}}`
 
         You must format your response as a JSON object matching the required schema.
         """
@@ -118,18 +119,19 @@ class AIAgent:
             for i, step in enumerate(response.plan, 1):
                 print(f"  Step {i}: {step}")
 
-        if response.action == 'execute':
+        action_name = response.details.action
+        if action_name == 'execute':
             if isinstance(response.details, FinalAnswer):
                 self.knowledge.add(f"Completed task '{task.description}' with result: {response.details.response[:100]}...")
                 print(f"[{self.persona.role}] has executed the task.")
             else:
                 print(f"[{self.persona.role}] has taken an invalid action. Expected FinalAnswer, got {type(response.details)}")
-        elif response.action == 'delegate':
+        elif action_name == 'delegate':
             if isinstance(response.details, Delegation):
                 print(f"[{self.persona.role}] has decided to delegate the task to [{response.details.recipient}].")
             else:
                 print(f"[{self.persona.role}] has taken an invalid action. Expected Delegation, got {type(response.details)}")
-        elif response.action == 'use_tool':
+        elif action_name == 'use_tool':
             if isinstance(response.details, UseTool):
                 print(f"[{self.persona.role}] has decided to use the '{response.details.tool_name}' tool.")
             else:

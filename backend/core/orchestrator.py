@@ -107,10 +107,11 @@ class Organization:
 
         for i in range(max_delegations):
             action_result = current_agent.execute_task(task, current_agent)
+            action_details = action_result.details
 
-            if action_result.action == 'execute':
-                if isinstance(action_result.details, FinalAnswer):
-                    final_response = action_result.details.response
+            if action_details.action == 'execute':
+                if isinstance(action_details, FinalAnswer):
+                    final_response = action_details.response
                     manager_role = self.get_manager(current_agent.persona.role)
                     
                     if not manager_role:
@@ -129,38 +130,38 @@ class Organization:
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to execute but provided invalid details."
             
-            elif action_result.action == 'delegate':
-                if isinstance(action_result.details, Delegation):
-                    recipient_role = action_result.details.recipient_role
+            elif action_details.action == 'delegate':
+                if isinstance(action_details, Delegation):
+                    recipient_role = action_details.recipient
                     next_agent = self.agents.get(recipient_role)
                     
                     if not next_agent:
                         return f"Error: Agent {current_agent.persona.role} tried to delegate to non-existent role {recipient_role}."
                     
-                    task.description = action_result.details.new_task_description
+                    task.description = action_details.task_description
                     current_agent = next_agent
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to delegate but provided invalid details."
 
-            elif action_result.action == 'request_revision':
-                if isinstance(action_result.details, RequestRevision):
-                    recipient_role = action_result.details.recipient_role
+            elif action_details.action == 'request_revision':
+                if isinstance(action_details, RequestRevision):
+                    recipient_role = action_details.subordinate_to_revise
                     next_agent = self.agents.get(recipient_role)
                     
                     if not next_agent:
                         return f"Error: Agent {current_agent.persona.role} tried to request a revision from a non-existent role {recipient_role}."
                     
-                    task.description = f"Your manager, {current_agent.persona.role}, has reviewed your work and requested revisions. Please address the following feedback and provide a new, complete response.\n\nMANAGER'S FEEDBACK:\n---\n{action_result.details.feedback}\n\nORIGINAL TASK:\n---\n{task.description}"
-                    task.action_history.append(f"Manager {current_agent.persona.role} requested revision with feedback: {action_result.details.feedback}")
+                    task.description = f"Your manager, {current_agent.persona.role}, has reviewed your work and requested revisions. Please address the following feedback and provide a new, complete response.\n\nMANAGER'S FEEDBACK:\n---\n{action_details.revision_feedback}\n\nORIGINAL TASK:\n---\n{task.description}"
+                    task.action_history.append(f"Manager {current_agent.persona.role} requested revision with feedback: {action_details.revision_feedback}")
                     current_agent = next_agent
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to request a revision but provided invalid details."
 
-            elif action_result.action == 'use_tool':
-                if isinstance(action_result.details, UseTool):
-                    tool_name = action_result.details.tool_name
-                    method_name = action_result.details.method
-                    arguments = action_result.details.arguments
+            elif action_details.action == 'use_tool':
+                if isinstance(action_details, UseTool):
+                    tool_name = action_details.tool_name
+                    method_name = action_details.method
+                    arguments = action_details.arguments
 
                     # Enforce agent abilities
                     if tool_name not in current_agent.persona.abilities:
@@ -191,7 +192,7 @@ class Organization:
                 else:
                     return f"Error: Agent {current_agent.persona.role} tried to use a tool but provided invalid details."
             else:
-                return f"Error: Unknown action '{action_result.action}' decided by agent."
+                return f"Error: Unknown action '{action_details.action}' decided by agent."
 
         return "Error: Maximum delegation depth reached. The task could not be completed."
 
