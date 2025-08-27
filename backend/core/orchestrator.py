@@ -127,7 +127,7 @@ class Organization:
                     
                     # Append the report to the history and create a clean task for the manager
                     task.action_history.append(f"SUBORDINATE'S REPORT from {current_agent.persona.role}:\n---\n{final_response}")
-                    task.description = f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is in the action history. Please review and decide the next action."
+                    task.description = f"Your subordinate, {current_agent.persona.role}, has completed their assigned task. Their report is in the action history. Please review their work and decide the next action to progress the original goal: '{task.original_description}'."
                     task.assigned_to = manager_role
                     current_agent = self.agents.get(manager_role)
                 else:
