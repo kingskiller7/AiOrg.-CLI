@@ -14,7 +14,9 @@ class Organization:
     def __init__(self, structure: Dict[str, Dict]):
         self.agents: Dict[str, AIAgent] = {}
         self.hierarchy: Dict[str, List[str]] = {}
-        self.similarity_model = SentenceTransformer('/home/kingubaish786/AiOrg.-CLI/models/model/all-MiniLM-L6-v2')
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        model_path = os.path.join(project_root, 'models', 'model', 'all-MiniLM-L6-v2')
+        self.similarity_model = SentenceTransformer(model_path)
 
         # Manually load the .env file from the backend directory
         backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
