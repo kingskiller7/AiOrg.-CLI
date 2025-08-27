@@ -39,7 +39,7 @@ class Organization:
                     line = line.strip()
                     if line and line.startswith('GEMINI_API_KEY'):
                         key, value = line.split('=', 1)
-                        api_key = value.strip().strip("'"")
+                        api_key = value.strip().strip("'\"")
                         break
 
         if not api_key or api_key == "YOUR_API_KEY_HERE":
