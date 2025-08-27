@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import subprocess
 import os
+import json
 from .config import WORKSPACE_DIR
 from .tool_forge import ToolForge
 from . import file_tools
@@ -23,9 +24,9 @@ class BrowserTool:
                 page.goto(url, timeout=15000)
                 content = page.locator('body').inner_text()
                 browser.close()
-                return content[:5000]
+                return json.dumps({"content": content[:5000]})
         except Exception as e:
-            return f"Error browsing site: {e}"
+            return json.dumps({"error": f"Error browsing site: {e}"})
 
 class CodeExecutionTool:
     """A tool for writing, linting, and executing Python code in a sandbox."""
@@ -40,11 +41,11 @@ class CodeExecutionTool:
         try:
             result = subprocess.run(["ruff", "check", "--stdin-filename", "temp.py", "-"], input=code, text=True, capture_output=True)
             if result.returncode == 0:
-                return "No linting errors found."
+                return json.dumps({"status": "No linting errors found."} )
             else:
-                return f"Linting errors found:\n{result.stderr}"
+                return json.dumps({"status": "Linting errors found", "errors": result.stderr})
         except Exception as e:
-            return f"Error during linting: {e}"
+            return json.dumps({"error": f"Error during linting: {e}"})
 
     def write_code(self, filename: str, code: str) -> str:
         """Writes code to a file in the workspace."""
@@ -53,22 +54,22 @@ class CodeExecutionTool:
         try:
             with open(filepath, 'w') as f:
                 f.write(code)
-            return f"Successfully wrote code to {filename}."
+            return json.dumps({"status": f"Successfully wrote code to {filename}."})
         except Exception as e:
-            return f"Error writing file: {e}"
+            return json.dumps({"error": f"Error writing file: {e}"})
 
     def execute_code(self, filename: str) -> str:
         """Executes a Python script in the workspace and captures its output."""
         filepath = os.path.join(self.work_dir, filename)
         print(f"[CodeTool] Executing {filepath}...")
         if not os.path.exists(filepath):
-            return f"Error: File '{filename}' not found."
+            return json.dumps({"error": f"File '{filename}' not found."} )
         try:
             result = subprocess.run(["python", filepath], text=True, capture_output=True, timeout=30)
             output = f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
-            return output
+            return json.dumps({"output": output})
         except Exception as e:
-            return f"Error during execution: {e}"
+            return json.dumps({"error": f"Error during execution: {e}"})
 
 class FileSystemTool:
     """A tool for interacting with the local file system in a sandboxed workspace."""
@@ -82,23 +83,23 @@ class FileSystemTool:
         target_path = os.path.join(self.work_dir, path)
         print(f"[FileTool] Listing contents of {target_path}...")
         if not os.path.exists(target_path) or not os.path.isdir(target_path):
-            return f"Error: Directory '{path}' not found."
+            return json.dumps({"error": f"Directory '{path}' not found."} )
         try:
-            return "\n".join(os.listdir(target_path))
+            return json.dumps({"files": os.listdir(target_path)})
         except Exception as e:
-            return f"Error listing directory: {e}"
+            return json.dumps({"error": f"Error listing directory: {e}"})
 
     def read_file(self, filename: str) -> str:
         """Reads the content of a file from the workspace."""
         filepath = os.path.join(self.work_dir, filename)
         print(f"[FileTool] Reading file {filepath}...")
         if not os.path.exists(filepath):
-            return f"Error: File '{filename}' not found."
+            return json.dumps({"error": f"File '{filename}' not found."} )
         try:
             with open(filepath, 'r') as f:
-                return f.read()
+                return json.dumps({"content": f.read()})
         except Exception as e:
-            return f"Error reading file: {e}"
+            return json.dumps({"error": f"Error reading file: {e}"})
 
     def write_file(self, filename: str, content: str) -> str:
         """Writes content to a file in the workspace."""
@@ -107,23 +108,23 @@ class FileSystemTool:
         try:
             with open(filepath, 'w') as f:
                 f.write(content)
-            return f"Successfully wrote to {filename}."
+            return json.dumps({"status": f"Successfully wrote to {filename}."})
         except Exception as e:
-            return f"Error writing file: {e}"
+            return json.dumps({"error": f"Error writing file: {e}"})
 
 class FileProcessingTool:
     """A tool for processing files."""
     def read_document(self, file_path: str) -> str:
-        return file_tools.read_document(file_path)
+        return json.dumps(file_tools.read_document(file_path))
 
-    def extract_zip(self, file_path: str) -> list[str]:
-        return file_tools.extract_zip(file_path)
+    def extract_zip(self, file_path: str) -> str:
+        return json.dumps(file_tools.extract_zip(file_path))
 
     def analyze_image(self, file_path: str, prompt: str) -> str:
-        return file_tools.analyze_image(file_path, prompt)
+        return json.dumps(file_tools.analyze_image(file_path, prompt))
 
     def analyze_video(self, file_path: str, prompt: str) -> str:
-        return file_tools.analyze_video(file_path, prompt)
+        return json.dumps(file_tools.analyze_video(file_path, prompt))
 
 # Instantiate tools for the application to use
 browser_tool = BrowserTool()

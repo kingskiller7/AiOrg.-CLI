@@ -19,7 +19,7 @@ class ToolForge:
     def create_tool(self, tool_name: str, description: str, code: str) -> str:
         """Creates a new tool by saving its code and updating the manifest."""
         if not tool_name.isidentifier():
-            return f"Error: '{tool_name}' is not a valid Python identifier."
+            return json.dumps({"error": f"'{tool_name}' is not a valid Python identifier."})
 
         filepath = os.path.join(self.custom_tools_dir, f"{tool_name}.py")
         print(f"[ToolForge] Creating new tool: {tool_name}")
@@ -37,9 +37,9 @@ class ToolForge:
                 f.seek(0)
                 json.dump(manifest, f, indent=4)
             
-            return f"Successfully created new tool: {tool_name}. It is now available for use."
+            return json.dumps({"status": f"Successfully created new tool: {tool_name}. It is now available for use."})
         except Exception as e:
-            return f"Error creating tool: {e}"
+            return json.dumps({"error": f"Error creating tool: {e}"})
 
     def load_custom_tools(self) -> dict:
         """Loads all custom tools from the manifest."""

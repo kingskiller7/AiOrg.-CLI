@@ -1,5 +1,6 @@
 from diffusers import StableDiffusionPipeline
 import torch
+import json
 
 def text_to_image(prompt: str) -> str:
     """Generates an image from a text prompt and returns the image path."""
@@ -14,4 +15,4 @@ def text_to_image(prompt: str) -> str:
     image_path = f"{prompt.replace(' ', '_')}.png"
     image.save(image_path)
     
-    return image_path
+    return json.dumps({"image_path": image_path})

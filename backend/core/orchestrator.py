@@ -192,9 +192,12 @@ class Organization:
                         return f"Error: Tool '{tool_name}' does not have a method '{method_name}'"
 
                     try:
-                        tool_result = method(**arguments)
+                        tool_result_json = method(**arguments)
+                        tool_result = json.loads(tool_result_json)
                     except TypeError as e:
                         return f"Error: Invalid arguments for {tool_name}.{method_name}: {e}"
+                    except json.JSONDecodeError as e:
+                        return f"Error: Tool {tool_name}.{method_name} returned invalid JSON: {e}"
 
                     tool_output_string = f"The {tool_name} tool was used by calling '{method_name}'. The result was: {tool_result}"
                     task.action_history.append(tool_output_string)
