@@ -11,6 +11,7 @@ This project implements a hierarchical organization of AI agents designed to acc
 *   **Extensible Agent Personas:** Easily define and customize the roles, responsibilities, and starting abilities of each AI agent.
 *   **Deterministic & Efficient Core:** The underlying agent architecture has been refactored to be deterministic (temperature=0) and highly efficient (using a single, shared language model).
 *   **Dual Interface:** Interact with the AI organization through a user-friendly web interface or a powerful command-line interface (CLI).
+*   **ToolTester Agent:** A dedicated agent that works under the CHRO to test new custom tools.
 
 ## Advanced Workflows
 
@@ -148,6 +149,21 @@ Before running the application, you must add your Google Gemini API key to the `
     ```bash
     python cli.py "Your task description here"
     ```
+
+### Tool Testing
+
+The CLI includes a `tooltester` command that allows you to list and test the available tools.
+
+*   **List available tools:**
+    ```bash
+    python cli.py tooltester ls
+    ```
+
+*   **Test a specific tool:**
+    ```bash
+    python cli.py tooltester test <tool_name>
+    ```
+    This command will assign a task to the 'ToolTester' agent to test the specified tool.
 
 ## License
 
