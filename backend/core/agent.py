@@ -89,9 +89,11 @@ class AIAgent:
         - Expected Output: {task.expected_output}
 
         **Your Decision Process:**
-        1. Formulate a step-by-step plan.
-        2. Choose your single next action from the Action Reference below.
-        3. Your entire response MUST be a single JSON object containing a `plan` key and a `details` key.
+        1. Formulate a step-by-step plan to **produce the final output**.
+        2. Your primary goal is to **complete the task and produce the expected output**. Use your abilities to achieve this.
+        3. If you have the ability to complete the task, you should use your tools to do so. Do not just plan to do the work, **do the work**.
+        4. Choose your single next action from the Action Reference below.
+        5. Your entire response MUST be a single JSON object containing a `plan` key and a `details` key.
 
         **Action Reference:**
 
