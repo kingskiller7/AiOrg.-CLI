@@ -9,17 +9,6 @@ from .task import Task
 from .persona import Persona
 from .tools import browser_tool, code_executor_tool, file_system_tool, tool_forge, file_processing_tool
 
-def generate_summary_report(task: Task, final_response: str) -> str:
-    """Generates a summary report of the task execution."""
-    report = "--- Task Summary Report ---\n\n"
-    report += f"Initial Task: {task.original_description}\n\n"
-    report += "--- Action History ---"
-    for item in task.action_history:
-        report += f"- {item}\n"
-    report += "\n--- Final Result ---"
-    report += final_response
-    return report
-
 class Organization:
     """The main orchestrator that manages the full, hierarchical workflow and dynamic tools."""
     def __init__(self, structure: Dict[str, Dict]):
@@ -136,7 +125,7 @@ class Organization:
                     
                     if not manager_role:
                         print("--- Organization Task Complete (CEO Finalized) ---")
-                        return generate_summary_report(task, final_response)
+                        return final_response
                     
                     # Append the report to the history and create a clean task for the manager
                     task.action_history.append(f"SUBORDINATE'S REPORT from {current_agent.persona.role}:\n---\n{final_response}")
@@ -219,7 +208,7 @@ class Organization:
             else:
                 return f"Error: Unknown action '{action_details.action}' decided by agent."
 
-        return generate_summary_report(task, "Error: Maximum delegation depth reached. The task could not be completed.")
+        return "Error: Maximum delegation depth reached. The task could not be completed."
 
     def _calculate_similarity(self, text1: str, text2: list[str]) -> float:
         """Calculates the similarity between a text and a list of texts."""
