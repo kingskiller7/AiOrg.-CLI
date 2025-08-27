@@ -6,9 +6,15 @@ from .tool_forge import ToolForge
 from . import file_tools
 
 class BrowserTool:
-    """A tool for browsing websites and scraping their content."""
+    """
+    A tool for browsing websites and scraping their content. 
+    This tool is ideal for research, gathering information, or checking the content of a webpage.
+    """
     def browse_and_scrape(self, url: str) -> str:
-        """Visits a URL and returns the text content of the page."""
+        """
+        Visits a URL and returns the text content of the page. 
+        Use this for any research or browsing tasks.
+        """
         print(f"[BrowserTool] Browsing {url}...")
         try:
             with sync_playwright() as p:
