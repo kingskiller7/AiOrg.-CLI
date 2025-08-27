@@ -38,7 +38,7 @@ def define_organization_structure() -> dict:
         },
         "CHRO": {
             "persona": Persona(role="CHRO", responsibilities=["Developing and executing HR strategy in support of the overall business plan", "Overseeing talent acquisition, development, and retention", "Managing compensation, benefits, and company culture"], abilities=["tool_management", "agent_management"]),
-            "subordinates": ["HR & Administration"]
+            "subordinates": ["HR & Administration", "ToolTester"]
         },
         "CMO": {
             "persona": Persona(role="CMO", responsibilities=["Developing and executing the overall marketing strategy", "Overseeing market research, branding, and advertising", "Driving revenue growth and customer acquisition"], abilities=["browser", "research"]),
@@ -138,11 +138,15 @@ def define_organization_structure() -> dict:
         "Sales Representative": {
             "persona": Persona(role="Sales Representative", responsibilities=["Generating leads and contacting potential customers", "Presenting products and closing sales", "Maintaining customer relationships"], abilities=["browser", "research"]),
             "subordinates": []
+        },
+        "ToolTester": {
+            "persona": Persona(role="ToolTester", responsibilities=["Testing new custom tools to ensure they meet quality standards", "Reporting test results to the CHRO"], abilities=["code_executor", "file_system"]),
+            "subordinates": []
         }
     }
     return structure
 
-def main(task_description: str):
+def main(task_description: str, assigned_to: str = "CEO"):
     print(f"Initializing AI Organization for task: '{task_description}'")
 
     # 1. Define the Organization
@@ -150,25 +154,41 @@ def main(task_description: str):
     organization = Organization(structure)
 
     # 2. Define the Task
-    # The initial task is always assigned to the CEO to start the delegation chain.
     task = Task(
         description=task_description,
         expected_output="A comprehensive result based on the task description.",
-        assigned_to="CEO"
+        assigned_to=assigned_to
     )
 
     # 3. Kick off the work
     result = organization.kickoff(task)
 
-    print("\\n########################")
+    print("\n########################")
     print("## Work Complete")
-    print("########################\\n")
+    print("########################\n")
     print("Final Result:")
     print(result)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the AiOrg with a specific task.")
-    parser.add_argument("task", type=str, help="The task for the organization to execute.")
+    parser.add_argument("command", nargs='?', default=None, help="The task for the organization or 'tooltester' command.")
+    parser.add_argument("subcommand", nargs='?', default=None, help="Subcommand for tooltester ('ls' or tool name).")
+
     args = parser.parse_args()
 
-    main(args.task)
+    if args.command == "tooltester":
+        if args.subcommand == "ls":
+            print("Available tools:")
+            print("- BrowserTool")
+            print("- CodeExecutionTool")
+            print("- FileSystemTool")
+            print("- FileProcessingTool")
+            print("- ToolForge")
+        elif args.subcommand:
+            main(f"Test the {args.subcommand} tool", assigned_to="ToolTester")
+        else:
+            print("Please specify a subcommand for tooltester: 'ls' or a tool name to test.")
+    elif args.command:
+        main(args.command)
+    else:
+        parser.print_help()
