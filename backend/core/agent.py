@@ -23,11 +23,11 @@ class UseTool(BaseModel):
     action: Literal["use_tool"] = "use_tool"
     tool_name: str = Field(description="The name of the tool to use.")
     method: str = Field(description="The method of the tool to call.")
-    arguments: Dict[str, str] = Field(description="The arguments for the tool method.")
+    arguments: Dict[str, Union[str, List, Dict]] = Field(description="The arguments for the tool method.")
 
 class FinalAnswer(BaseModel):
     action: Literal["execute"] = "execute"
-    response: str = Field(description="The final, complete answer to the task.")
+    response: Union[str, Dict] = Field(description="The final, complete answer to the task.")
 
 class RequestRevision(BaseModel):
     action: Literal["request_revision"] = "request_revision"

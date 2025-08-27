@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Dict, List
 from langchain_google_genai import ChatGoogleGenerativeAI
 from sentence_transformers import SentenceTransformer, util
@@ -116,6 +117,8 @@ class Organization:
             if action_details.action == 'execute':
                 if isinstance(action_details, FinalAnswer):
                     final_response = action_details.response
+                    if isinstance(final_response, dict):
+                        final_response = json.dumps(final_response, indent=2)
                     manager_role = self.get_manager(current_agent.persona.role)
                     
                     if not manager_role:
@@ -165,6 +168,9 @@ class Organization:
                     tool_name = action_details.tool_name
                     method_name = action_details.method
                     arguments = action_details.arguments
+                    for key, value in arguments.items():
+                        if not isinstance(value, str):
+                            arguments[key] = str(value)
 
                     # Enforce agent abilities
                     if tool_name not in current_agent.persona.abilities:
