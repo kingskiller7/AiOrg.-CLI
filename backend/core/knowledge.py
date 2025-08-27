@@ -9,7 +9,7 @@ class KnowledgeBase:
     """Manages an agent's memory using a LanceDB vector store."""
     def __init__(self, agent_role: str, db_path: str = MEMORY_DIR):
         self.agent_role = agent_role
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.model = SentenceTransformer('/home/kingubaish786/AiOrg.-CLI/models/model/all-MiniLM-L6-v2')
         
         if not os.path.exists(db_path):
             os.makedirs(db_path)
